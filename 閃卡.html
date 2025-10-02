@@ -1,0 +1,447 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, viewport-fit=cover" />
+<title>閃卡 v3.31</title>
+<meta name="theme-color" content="#0b0c10" />
+<style>
+  :root{
+    --bg:#0b0c10; --panel:#111318; --text:#f5f5f5; --muted:#94a3b8;
+    --btn:#1a1f29; --btn-border:#303645; --btn-hover:#232a37; --accent:#44d1bf;
+    --divider:#232834; --radius:16px;
+    --zh-size:64px; --py-size:24px;
+  }
+
+  /* Prefer TW Kai, fall back to WenKai TC Light (local files) */
+  @font-face{
+    font-family:'TW Kai';
+    src:url('./tw-kai.ttf') format('truetype');
+    font-weight:400; font-style:normal; font-display:swap;
+  }
+  @font-face{
+    font-family:'WenKaiTCLight';
+    src:url('./fonts/LXGWWenKaiTC-Light.ttf') format('truetype');
+    font-weight:300; font-style:normal; font-display:swap;
+  }
+
+  *{box-sizing:border-box; -webkit-tap-highlight-color:transparent;}
+  html,body{height:100%;margin:0;background:var(--bg);color:var(--text);font-family:system-ui,-apple-system,Segoe UI,Roboto,Inter,Arial,sans-serif;overflow:hidden;overscroll-behavior:none;}
+  .wrap{height:100vh;display:flex;align-items:center;justify-content:center;padding:10px}
+  .app{height:calc(100vh - 20px);width:min(780px,96vw);background:var(--panel);border:1px solid #1d2230;border-radius:var(--radius);box-shadow:0 8px 32px rgba(0,0,0,.35);display:flex;flex-direction:column;overflow:hidden}
+
+  /* Toolbar */
+  .bar{display:flex;gap:8px;align-items:center;justify-content:space-between;padding:10px}
+  .left, .right{display:flex;gap:8px;align-items:center}
+  .select{background:var(--btn);border:1px solid var(--btn-border);color:var(--text);border-radius:10px;padding:8px 10px;font-size:15px}
+  .iconbtn{background:var(--btn);border:1px solid var(--btn-border);color:var(--text);border-radius:12px;padding:10px 14px;font-size:18px;line-height:1;cursor:pointer}
+  .iconbtn:hover{background:var(--btn-hover)}
+  .iconbtn.active{color:var(--accent);border-color:#2b6b63}
+
+  /* Split area */
+  .main{flex:1;display:flex;flex-direction:column;min-height:0}
+  .top{flex:4;position:relative;padding:8px 12px 4px;min-height:0;touch-action:pan-y;}
+  .divider{height:1px;background:var(--divider)}
+  .bottom{flex:6;position:relative;min-height:0}
+  #pad{position:absolute;inset:0;touch-action:none}
+
+  /* Two-card stage */
+  .stage{position:absolute;inset:0;overflow:hidden}
+  .card{position:absolute;inset:0;display:grid;place-items:center;opacity:1;transform:none;
+        transition:transform .22s ease, opacity .22s ease; will-change:transform,opacity}
+  .to-left{transform:translateX(-40%);opacity:0}
+  .to-right{transform:translateX(40%);opacity:0}
+  .hidden{display:none}
+
+  /* Card content */
+  .panel{max-width:94%;text-align:center}
+  .en{font-size:clamp(18px,3.8vw,28px);font-weight:800}
+  .zh{font-family:'TW Kai','WenKaiTCLight','KaiTi','STKaiti','Kaiti SC','DFKai-SB',serif;
+      font-size:var(--zh-size);line-height:1.12;font-weight:400;white-space:pre-line}
+  .py{font-size:var(--py-size);color:var(--muted);margin-top:4px}
+  .sub{display:block;margin-top:6px}
+  /* Hide the prompt when the back is shown to prevent duplication */
+  .showBack .frontPrompt{display:none;}
+
+  /* Shadow overlay */
+  #shadowWrap{position:absolute;inset:0;display:none;align-items:center;justify-content:center;pointer-events:none}
+  #shadowChar{color:#fff;opacity:.14;line-height:1;text-align:center;font-weight:400;
+              font-family:'TW Kai','WenKaiTCLight','KaiTi','STKaiti','Kaiti SC','DFKai-SB',serif;}
+  .clearBtn{position:absolute;left:8px;top:8px;z-index:3;width:36px;height:36px;border-radius:9px;border:1px solid var(--btn-border);background:var(--btn);color:var(--text);display:grid;place-items:center;font-size:16px}
+
+  /* Progress */
+  .progress{display:flex;gap:6px;justify-content:center;padding:10px}
+  .dot{width:8px;height:8px;border-radius:999px;background:#262a36}
+  .dot.active{background:var(--accent)}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="app">
+    <div class="bar">
+      <div class="left">
+        <select id="lessonSelect" class="select" title="Lessons"></select>
+        <select id="modeSelect" class="select" title="Prompt">
+          <option value="EN">英</option>
+          <option value="TRAD">正</option>
+          <option value="SIMP">简</option>
+          <option value="PINYIN">拼</option>
+        </select>
+      </div>
+      <div class="right">
+        <button id="starBtn"   class="iconbtn" title="Mark for review">★</button>
+        <button id="freezeBtn" class="iconbtn" title="Shadow + Freeze">◐</button>
+        <button id="fsBtn"     class="iconbtn" title="Fullscreen">⛶</button>
+      </div>
+    </div>
+
+    <div class="main">
+      <div id="topPane" class="top" aria-label="Flashcard area (tap to flip, swipe to change)">
+        <div class="stage" id="stage">
+          <!-- Active card -->
+          <div class="card" id="cardA">
+            <div class="panel">
+              <div id="aPrompt" class="frontPrompt en">—</div>
+              <div id="aBack">
+                <div id="aZh" class="zh hidden">—</div>
+                <div id="aPy" class="py hidden">—</div>
+                <div id="aEn" class="en hidden" style="font-size:20px;opacity:.9;margin-top:6px">—</div>
+              </div>
+            </div>
+          </div>
+          <!-- Incoming/standby card -->
+          <div class="card" id="cardB">
+            <div class="panel">
+              <div id="bPrompt" class="frontPrompt en">—</div>
+              <div id="bBack">
+                <div id="bZh" class="zh hidden">—</div>
+                <div id="bPy" class="py hidden">—</div>
+                <div id="bEn" class="en hidden" style="font-size:20px;opacity:.9;margin-top:6px">—</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="divider"></div>
+      <div class="bottom" id="drawPane">
+        <div id="shadowWrap"><div id="shadowChar"></div></div>
+        <button id="clearBtn" class="clearBtn" title="Clear">✕</button>
+        <canvas id="pad"></canvas>
+      </div>
+    </div>
+
+    <div id="progress" class="progress"></div>
+  </div>
+</div>
+
+<script src="./vocab-1.js?v=2025-10-01a"></script>
+<script>
+(function(){
+  /* ------------ Data ------------ */
+  const RAW = (window.VOCAB && window.VOCAB.lessons) || {};
+  const LESSONS = {};
+  Object.keys(RAW).forEach(k=>{
+    const m=k.match(/Lesson\\s+(\\d+-\\d+)/i);
+    const key=m?`L${m[1]}`:k;
+    const items=(RAW[k]||[]).map((c,i)=>({
+      ...c, id:`${key}:${i}:${(c.trad||'')}/${(c.simp||'')}/${(c.en||'')}`
+    }));
+    LESSONS[key]=items;
+  });
+  const ORDERED = Object.keys(LESSONS).sort((a,b)=>a.localeCompare(b,undefined,{numeric:true}));
+  const ALL = ORDERED.flatMap(k=>LESSONS[k]);
+
+  /* ------------ Refs ------------ */
+  const $=s=>document.querySelector(s);
+  const lessonSelect=$('#lessonSelect'), modeSelect=$('#modeSelect');
+  const starBtn=$('#starBtn'), freezeBtn=$('#freezeBtn'), fsBtn=$('#fsBtn');
+  const stage=$('#stage'), cardA=$('#cardA'), cardB=$('#cardB');
+  const aPrompt=$('#aPrompt'), aZh=$('#aZh'), aPy=$('#aPy'), aEn=$('#aEn');
+  const bPrompt=$('#bPrompt'), bZh=$('#bZh'), bPy=$('#bPy'), bEn=$('#bEn');
+  const topPane=$('#topPane');
+  const progress=$('#progress');
+  const drawPane=$('#drawPane'), pad=$('#pad'), clearBtn=$('#clearBtn');
+  const shadowWrap=$('#shadowWrap'), shadowChar=$('#shadowChar');
+
+  /* ------------ State ------------ */
+  const REVIEW_KEY='shan_review_v1';
+  let reviewSet=new Set();
+  try{const raw=localStorage.getItem(REVIEW_KEY); if(raw) reviewSet=new Set(JSON.parse(raw));}catch(e){}
+
+  let deck=ALL.slice(); let order=deck.map((_,i)=>i);
+  const state={ key:'ALL', index:0, revealed:false, freeze:false, shadowGlyph:'', prompt:'EN' };
+
+  function saveReview(){try{localStorage.setItem(REVIEW_KEY,JSON.stringify([...reviewSet]));}catch(e){}}
+  function current(){ return deck[order[state.index]] || {en:'—',trad:'—',simp:'—',py:'—',id:'_'}; }
+  function fmtZh(trad,simp){ return (trad && simp && trad!==simp) ? (trad + '\\n' + simp).replace(/\\n/g,'<span class="sub"></span>') : (trad || simp || '—'); }
+
+  /* ------------ Deck UI ------------ */
+  function refreshCountsLabel(){
+    const was=lessonSelect.value;
+    lessonSelect.innerHTML='';
+    lessonSelect.append(new Option(`All lessons (${ALL.length})`,'ALL'));
+    ORDERED.forEach(k=>lessonSelect.append(new Option(`${k} (${LESSONS[k].length})`,k)));
+    lessonSelect.append(new Option(`Review (★) (${reviewSet.size})`,'REVIEW'));
+    lessonSelect.value=(was && [...lessonSelect.options].some(o=>o.value===was))?was:'ALL';
+  }
+  function setDeckFor(key){
+    state.key=key; state.index=0; state.revealed=false;
+    deck = key==='ALL' ? ALL.slice() : key==='REVIEW' ? ALL.filter(c=>reviewSet.has(c.id)) : LESSONS[key].slice();
+    order=deck.map((_,i)=>i);
+    paintCard(cardA, aPrompt, aZh, aPy, aEn, current(), state.prompt, state.revealed);
+    paintCard(cardB, bPrompt, bZh, bPy, bEn, {}, state.prompt, false);
+    cardA.classList.remove('hidden'); cardB.classList.add('hidden');
+    active='A';
+    drawDots();
+  }
+
+  /* ------------ Paint helpers ------------ */
+  function setPrompt(el, mode, c){
+    if(mode==='EN'){ el.className='frontPrompt en'; el.textContent=c.en||'—'; }
+    else if(mode==='TRAD'){ el.className='frontPrompt zh'; el.textContent=c.trad||c.simp||'—'; }
+    else if(mode==='SIMP'){ el.className='frontPrompt zh'; el.textContent=c.simp||c.trad||'—'; }
+    else { el.className='frontPrompt py'; el.textContent=c.py||'—'; }
+  }
+  function showBackOn(card, show){
+    card.classList.toggle('showBack', !!show);
+    const zh = (card===cardA)?aZh:bZh;
+    const py = (card===cardA)?aPy:bPy;
+    const en = (card===cardA)?aEn:bEn;
+    if(show){ zh.classList.remove('hidden'); py.classList.remove('hidden'); en.classList.remove('hidden'); }
+    else    { zh.classList.add('hidden');    py.classList.add('hidden');    en.classList.add('hidden'); }
+  }
+  function paintCard(card, pEl, zhEl, pyEl, enEl, c, mode, revealed){
+    const empty = !c || !c.en;
+    setPrompt(pEl, mode, empty?{en:'—',trad:'—',simp:'—',py:'—'}:c);
+    zhEl.innerHTML=fmtZh(c.trad||'—', c.simp||'—');
+    pyEl.textContent=c.py||'—';
+    enEl.textContent=c.en||'—';
+    showBackOn(card, !!revealed);
+  }
+
+  /* ------------ Progress dots ------------ */
+  function drawDots(){
+    progress.innerHTML='';
+    for(let i=0;i<order.length;i++){
+      const d=document.createElement('div');
+      d.className='dot'+(i===state.index?' active':'');
+      progress.appendChild(d);
+    }
+    starBtn.classList.toggle('active', reviewSet.has(current().id));
+    freezeBtn.classList.toggle('active', state.freeze);
+  }
+
+  /* ------------ Card navigation ------------ */
+  let active='A';
+  function goto(nextIndex, dir){
+    if(order.length===0) return;
+    const nextCard = (active==='A')?cardB:cardA;
+    const nextP = (active==='A')?bPrompt:aPrompt;
+    const nextZh = (active==='A')?bZh:aZh;
+    const nextPy = (active==='A')?bPy:aPy;
+    const nextEn = (active==='A')?bEn:aEn;
+    const curCard = (active==='A')?cardA:cardB;
+
+    const idx = (nextIndex+order.length)%order.length;
+    state.index = idx;
+    state.revealed=false;
+    paintCard(nextCard, nextP, nextZh, nextPy, nextEn, current(), state.prompt, false);
+
+    nextCard.classList.remove('hidden','to-left','to-right');
+    curCard.classList.remove('to-left','to-right');
+    nextCard.style.transition='none'; curCard.style.transition='none';
+    if(dir<0){ nextCard.classList.add('to-right'); } else { nextCard.classList.add('to-left'); }
+    nextCard.getBoundingClientRect();
+
+    nextCard.style.transition='transform .22s ease, opacity .22s ease';
+    curCard.style.transition='transform .22s ease, opacity .22s ease';
+    if(dir<0){ curCard.classList.add('to-left'); nextCard.classList.remove('to-right'); }
+    else     { curCard.classList.add('to-right'); nextCard.classList.remove('to-left'); }
+
+    const done=()=>{
+      curCard.classList.add('hidden');
+      curCard.classList.remove('to-left','to-right');
+      nextCard.style.transition=''; curCard.style.transition='';
+      active = (active==='A')?'B':'A';
+      drawDots();
+      stage.removeEventListener('transitionend', done);
+    };
+    stage.addEventListener('transitionend', done, {once:true});
+  }
+
+  function flip(){
+    const card = (active==='A')?cardA:cardB;
+    state.revealed=!state.revealed;
+    showBackOn(card, state.revealed);
+  }
+
+  /* ------------ Initialize deck ------------ */
+  refreshCountsLabel();
+  setDeckFor('ALL');
+  modeSelect.value=state.prompt;
+  lessonSelect.addEventListener('change',()=>setDeckFor(lessonSelect.value));
+  modeSelect.addEventListener('change',()=>{
+    state.prompt=modeSelect.value;
+    const c=current();
+    if(active==='A') paintCard(cardA,aPrompt,aZh,aPy,aEn,c,state.prompt,state.revealed);
+    else paintCard(cardB,bPrompt,bZh,bPy,bEn,c,state.prompt,state.revealed);
+  });
+
+  /* ------------ Review / Freeze / Fullscreen ------------ */
+  starBtn.addEventListener('click',()=>{
+    const id=current().id;
+    if(reviewSet.has(id)) reviewSet.delete(id); else reviewSet.add(id);
+    saveReview(); refreshCountsLabel(); drawDots();
+  });
+
+  freezeBtn.addEventListener('click',()=>{
+    state.freeze=!state.freeze;
+    if(!state.freeze){ state.shadowGlyph=''; shadowWrap.style.display='none'; }
+    drawDots();
+  });
+
+  async function toggleFS(){
+    try{
+      if(!document.fullscreenElement){ await document.documentElement.requestFullscreen({navigationUI:'hide'}); }
+      else { await document.exitFullscreen(); }
+    }catch(e){}
+  }
+  fsBtn.addEventListener('click', toggleFS);
+  document.addEventListener('fullscreenchange', ()=>{
+    fsBtn.classList.toggle('active', !!document.fullscreenElement);
+  });
+
+  /* ------------ Hanzi picker for Shadow Mode ------------ */
+  const hanRegex=/[\u3400-\u9FFF]/;
+  function firstHanChar(str){
+    if(!str) return '';
+    for(const ch of str){ if(hanRegex.test(ch)) return ch; }
+    return '';
+  }
+  function caretRangeAtPoint(x,y){
+    if(document.caretRangeFromPoint){
+      return document.caretRangeFromPoint(x,y);
+    }
+    if(document.caretPositionFromPoint){
+      const pos=document.caretPositionFromPoint(x,y);
+      if(!pos) return null;
+      const r=document.createRange();
+      r.setStart(pos.offsetNode,pos.offset);
+      return r;
+    }
+    return null;
+    }
+  function hanziFromPoint(e){
+    const r=caretRangeAtPoint(e.clientX,e.clientY);
+    if(r && r.startContainer){
+      let node=r.startContainer, offset=r.startOffset;
+
+      // If we landed on an element, try to get a nearby text node
+      if(node.nodeType!==Node.TEXT_NODE){
+        // Try child text
+        const walker=document.createTreeWalker(node, NodeFilter.SHOW_TEXT, null);
+        let t=walker.nextNode();
+        if(!t && node.parentNode){
+          // Try sibling text
+          const w2=document.createTreeWalker(node.parentNode, NodeFilter.SHOW_TEXT, null);
+          while((t=w2.nextNode())){ if(t.textContent && t.textContent.trim()) break; }
+        }
+        node=t||node;
+        offset=0;
+      }
+
+      if(node.nodeType===Node.TEXT_NODE){
+        const s=node.textContent||'';
+        let i=Math.max(0, Math.min(offset, s.length-1));
+        // Prefer exact offset, but scan to nearest Hanzi (left then right)
+        if(!hanRegex.test(s[i])){
+          let found=-1;
+          for(let d=1; d<4 && found<0; d++){
+            if(i-d>=0 && hanRegex.test(s[i-d])) found=i-d;
+            else if(i+d<s.length && hanRegex.test(s[i+d])) found=i+d;
+          }
+          if(found>=0) i=found;
+        }
+        const ch=s[i]||'';
+        if(hanRegex.test(ch)) return ch;
+      }
+    }
+    // Fallback: first Hanzi inside tapped element
+    const el=e.target.closest('.zh, .frontPrompt');
+    return firstHanChar(el?el.textContent:'');
+  }
+
+  /* ------------ Gestures (top) ------------ */
+  let startX=0,startY=0,dragging=false;
+  const SWIPE_X=48, SWIPE_MAX_Y=40;
+
+  topPane.addEventListener('pointerdown',e=>{
+    if(state.freeze) return; dragging=true; startX=e.clientX; startY=e.clientY; topPane.setPointerCapture(e.pointerId);
+  });
+  topPane.addEventListener('pointerup',e=>{
+    if(state.freeze || !dragging) return; dragging=false;
+    const dx=e.clientX-startX, dy=e.clientY-startY;
+    if(Math.abs(dx)>SWIPE_X && Math.abs(dy)<SWIPE_MAX_Y){
+      if(dx<0) goto(state.index+1, -1); else goto(state.index-1, +1);
+    }else{
+      flip();
+    }
+  });
+  topPane.addEventListener('pointercancel',()=>{ dragging=false; });
+
+  // In freeze mode: tap or select a Han character to shadow it
+  topPane.addEventListener('click',e=>{
+    if(!state.freeze) return;
+
+    // 1) Explicit user selection (long-press)
+    let txt = (window.getSelection ? (window.getSelection().toString()||'') : '').trim();
+    let ch = firstHanChar(txt);
+
+    // 2) If no selection, pick char exactly under the finger
+    if(!ch){ ch = hanziFromPoint(e); }
+
+    if(!ch) return;
+    state.shadowGlyph = ch;
+    fitShadow(); shadowChar.textContent = state.shadowGlyph;
+    shadowWrap.style.display='flex';
+  });
+
+  /* ------------ Drawing pad ------------ */
+  const ctx=pad.getContext('2d'); let drawing=false,lastX=0,lastY=0;
+  function resizePad(){
+    const dpr=Math.max(1,window.devicePixelRatio||1);
+    const r=drawPane.getBoundingClientRect();
+    pad.width=Math.round(r.width*dpr); pad.height=Math.round(r.height*dpr);
+    pad.style.width=r.width+'px'; pad.style.height=r.height+'px';
+    ctx.setTransform(1,0,0,1,0,0); ctx.scale(dpr,dpr);
+    ctx.lineCap='round'; ctx.lineJoin='round'; ctx.lineWidth=6; ctx.strokeStyle='rgba(255,255,255,.95)';
+    fitShadow();
+  }
+  function fitShadow(){
+    const r=drawPane.getBoundingClientRect();
+    shadowChar.style.fontSize = Math.floor(Math.min(r.width,r.height)*0.86)+'px';
+  }
+  function clearPad(){ ctx.clearRect(0,0,pad.width,pad.height); }
+  pad.addEventListener('pointerdown',e=>{
+    const r=pad.getBoundingClientRect();
+    drawing=true; lastX=e.clientX-r.left; lastY=e.clientY-r.top; pad.setPointerCapture(e.pointerId);
+  });
+  pad.addEventListener('pointermove',e=>{
+    if(!drawing) return;
+    const r=pad.getBoundingClientRect(); const x=e.clientX-r.left, y=e.clientY-r.top;
+    ctx.beginPath(); ctx.moveTo(lastX,lastY); ctx.lineTo(x,y); ctx.stroke(); lastX=x; lastY=y;
+  });
+  pad.addEventListener('pointerup',()=>{ drawing=false; });
+  pad.addEventListener('pointercancel',()=>{ drawing=false; });
+  clearBtn.addEventListener('click', clearPad);
+
+  window.addEventListener('resize', resizePad, {passive:true});
+  resizePad();
+  drawDots();
+
+  /* ------------ Initial paint ------------ */
+  paintCard(cardA,aPrompt,aZh,aPy,aEn,current(),state.prompt,state.revealed);
+})();
+</script>
+</body>
+</html>
