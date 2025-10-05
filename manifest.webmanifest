@@ -2,7 +2,7 @@
   "name": "閃卡",
   "short_name": "閃卡",
   "description": "Minimal Chinese flashcards with draw pad and shadow mode.",
-  "start_url": "./閃卡.html",
+  "start_url": "./index.html",
   "scope": "./",
   "display": "standalone",
   "background_color": "#0b0c10",
