@@ -299,6 +299,29 @@ window.VOCAB = {
       { en:"notes",                      trad:"筆記", simp:"笔记", py:"bǐjì" },
       { en:"to thank; to be grateful",   trad:"感謝", simp:"感谢", py:"gǎnxiè" },
       { en:"to deliver; escort; see off",trad:"送",   simp:"送",   py:"sòng" }
+    ],
+
+// ---- 1-20 (Renting an Apartment) ----
+    "Lesson 1-20": [
+      {en:"(introduces the object of a verb)", trad:"把",   simp:"把",   py:"bǎ"},
+      {en:"to bring over",                    trad:"帶來", simp:"带来", py:"dàilái"},
+      {en:"(sentence-final particle indicating surprise)", trad:"啊", simp:"啊", py:"a"},
+      {en:"to move",                          trad:"搬",   simp:"搬",   py:"bān"},
+      {en:"to be out",                        trad:"出",   simp:"出",   py:"chū"},
+      {en:"to go out",                        trad:"出去", simp:"出去", py:"chūqù"},
+      {en:"to come over",                     trad:"過來", simp:"过来", py:"guòlái"},
+      {en:"to cook",                          trad:"做飯", simp:"做饭", py:"zuòfàn"},
+      {en:"no problem",                       trad:"沒關係", simp:"没关系", py:"méiguānxi"},
+      {en:"before; previously",               trad:"以前", simp:"以前", py:"yǐqián"},
+      {en:"but",                              trad:"但是", simp:"但是", py:"dànshì"},
+      {en:"girlfriend",                       trad:"女朋友", simp:"女朋友", py:"nǚpéngyou"},
+      {en:"must",                             trad:"必須", simp:"必须", py:"bìxū"},
+      {en:"first day",                        trad:"第一天", simp:"第一天", py:"dìyītiān"},
+      {en:"prefix indicating an ordinal number", trad:"第", simp:"第", py:"dì"},
+      {en:"to pay",                           trad:"付",   simp:"付",   py:"fù"},
+      {en:"rent",                             trad:"房租", simp:"房租", py:"fángzū"},
+      {en:"upstairs",                         trad:"樓上", simp:"楼上", py:"lóushàng"},
+      {en:"immediately",                      trad:"馬上", simp:"马上", py:"mǎshàng"}
     ]
   }
 };
