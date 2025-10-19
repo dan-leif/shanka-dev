@@ -18,7 +18,7 @@
   @font-face{
     font-family:'TW Kai';
     src:url('./tw-kai.ttf') format('truetype');
-    font-weight:400; font-style:normal; font-display:swap;
+    font-weight:400; font-style:normal; font-display:block;
   }
   @font-face{
     font-family:'WenKaiTCLight';
@@ -169,34 +169,41 @@
     }, 300); // Match CSS transition duration
   }
   
-  // Check if font is already loaded
+  // Check if TW Kai font is actually loaded and rendered
   function checkFontLoaded() {
     if (document.fonts && document.fonts.check) {
-      if (document.fonts.check('16px "TW Kai"')) {
-        hideLoadingScreen();
-        return true;
-      }
+      return document.fonts.check('16px "TW Kai"');
     }
     return false;
   }
   
-  // Wait for fonts to load
-  if (document.fonts && document.fonts.ready) {
-    document.fonts.ready.then(() => {
+  // Wait for the specific font to load
+  function waitForFont() {
+    if (checkFontLoaded()) {
       hideLoadingScreen();
-    });
-  } else {
-    // Fallback: hide after a short delay if font loading detection fails
-    setTimeout(hideLoadingScreen, 1000);
+      return;
+    }
+    
+    // Use document.fonts.load() to ensure the font is actually loaded
+    if (document.fonts && document.fonts.load) {
+      document.fonts.load('16px "TW Kai"').then(() => {
+        // Add a small delay to ensure the font is fully rendered
+        setTimeout(hideLoadingScreen, 100);
+      }).catch(() => {
+        // Fallback if font loading fails
+        setTimeout(hideLoadingScreen, 1000);
+      });
+    } else {
+      // Fallback for older browsers
+      setTimeout(hideLoadingScreen, 1500);
+    }
   }
   
-  // Also check immediately in case font is already cached
-  if (checkFontLoaded()) {
-    // Font already loaded, hide immediately
-  } else {
-    // Set a maximum timeout to ensure loading screen doesn't stay forever
-    setTimeout(hideLoadingScreen, 3000);
-  }
+  // Start checking for font load
+  waitForFont();
+  
+  // Safety timeout to prevent infinite loading
+  setTimeout(hideLoadingScreen, 4000);
 
   /* ------------ Data ------------ */
   const RAW = (window.VOCAB && window.VOCAB.lessons) || {};
