@@ -30,6 +30,12 @@
   html,body{height:100%;margin:0;background:var(--bg);color:var(--text);font-family:system-ui,-apple-system,Segoe UI,Roboto,Inter,Arial,sans-serif;overflow:hidden;overscroll-behavior:none;}
   .wrap{height:100vh;display:flex;align-items:center;justify-content:center;padding:10px}
   .app{height:calc(100vh - 20px);width:min(780px,96vw);background:var(--panel);border:1px solid #1d2230;border-radius:var(--radius);box-shadow:0 8px 32px rgba(0,0,0,.35);display:flex;flex-direction:column;overflow:hidden}
+  
+  /* Fullscreen mode styles */
+  @media (display-mode: fullscreen) {
+    .wrap{padding:0;background:var(--panel)}
+    .app{height:100vh;width:100vw;border:none;border-radius:0;box-shadow:none}
+  }
 
   /* Toolbar */
   .bar{display:flex;gap:8px;align-items:center;justify-content:space-between;padding:10px}
