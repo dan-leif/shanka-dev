@@ -42,7 +42,9 @@
     position:fixed;top:0;left:0;width:100vw;height:100vh;background:var(--bg);
     display:flex;flex-direction:column;align-items:center;justify-content:center;
     z-index:9999;transition:opacity 0.3s ease-out;
+    opacity:0; /* Start hidden */
   }
+  #loadingScreen.show{opacity:1}
   #loadingScreen.hidden{opacity:0;pointer-events:none}
   #loadingIcon{width:min(200px,40vw);height:auto;margin-bottom:20px;opacity:0.9}
   #loadingText{color:var(--text);font-size:18px;font-weight:500}
@@ -162,6 +164,12 @@
 (function(){
   /* ------------ Font Loading Detection ------------ */
   const loadingScreen = document.getElementById('loadingScreen');
+  const loadingIcon = document.getElementById('loadingIcon');
+  
+  // Function to show loading screen (after image loads)
+  function showLoadingScreen() {
+    loadingScreen.classList.add('show');
+  }
   
   // Function to hide loading screen
   function hideLoadingScreen() {
@@ -169,6 +177,15 @@
     setTimeout(() => {
       loadingScreen.style.display = 'none';
     }, 300); // Match CSS transition duration
+  }
+  
+  // Show loading screen only after the icon image loads
+  loadingIcon.addEventListener('load', showLoadingScreen);
+  // Fallback: show after a short delay if image is already cached
+  if (loadingIcon.complete) {
+    showLoadingScreen();
+  } else {
+    setTimeout(showLoadingScreen, 100);
   }
   
   // Check if TW Kai font is actually loaded and rendered
