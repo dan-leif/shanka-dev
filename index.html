@@ -91,15 +91,32 @@
 
   /* Progress */
   .progress{display:flex;gap:6px;justify-content:center;padding:10px}
-  .dot{width:8px;height:8px;border-radius:999px;background:#262a36}
+  .dot{width:8px;height:8px;border-radius:999px;background:#262a36;position:relative}
   .dot.active{background:var(--accent)}
+  .dot.due{background:#ff6b6b}
+  .dot.due-soon{background:#ffa726}
+  .dot.not-due{background:#66bb6a}
+
+  /* Rating buttons */
+  .rating-btns{display:flex;gap:8px;justify-content:center;padding:10px;border-top:1px solid var(--divider)}
+  .rating-btn{background:var(--btn);border:1px solid var(--btn-border);color:var(--text);border-radius:12px;padding:12px 16px;font-size:14px;font-weight:600;cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:4px;transition:all 0.2s ease;min-width:70px}
+  .rating-btn:hover{background:var(--btn-hover);transform:translateY(-1px)}
+  .rating-btn .interval{font-size:11px;opacity:0.7;font-weight:400}
+  .rating-btn.again{color:#ff6b6b;border-color:#ff6b6b40}
+  .rating-btn.again:hover{background:#ff6b6b20}
+  .rating-btn.hard{color:#ffa726;border-color:#ffa72640}
+  .rating-btn.hard:hover{background:#ffa72620}
+  .rating-btn.good{color:#66bb6a;border-color:#66bb6a40}
+  .rating-btn.good:hover{background:#66bb6a20}
+  .rating-btn.easy{color:#42a5f5;border-color:#42a5f540}
+  .rating-btn.easy:hover{background:#42a5f520}
 </style>
 </head>
 <body>
 <div id="loadingScreen">
   <img id="loadingIcon" src="icons/icon-1024-full.png" alt="Loading">
   <div id="loadingText">Loading...</div>
-  <div id="loadingVersion">v2.1.0</div>
+  <div id="loadingVersion">v3.0.0</div>
 </div>
 <div class="wrap">
   <div class="app">
@@ -156,10 +173,18 @@
     </div>
 
     <div id="progress" class="progress"></div>
+    
+    <!-- Rating buttons for SRS -->
+    <div id="ratingButtons" class="rating-btns hidden">
+      <button data-rating="0" class="rating-btn again">Again<span class="interval">10m</span></button>
+      <button data-rating="1" class="rating-btn hard">Hard<span class="interval">1d</span></button>
+      <button data-rating="2" class="rating-btn good">Good<span class="interval">3d</span></button>
+      <button data-rating="3" class="rating-btn easy">Easy<span class="interval">7d</span></button>
+    </div>
   </div>
 </div>
 
-<script src="./vocab-1.js?v=2025-10-01a"></script>
+<script src="./vocab-1.js?v=3.0.0"></script>
 <script>
 (function(){
   /* ------------ Font Loading Detection ------------ */
@@ -224,6 +249,171 @@
   // Safety timeout to prevent infinite loading
   setTimeout(hideLoadingScreen, 4000);
 
+  /* ------------ IndexedDB Setup ------------ */
+  let db = null;
+  const DB_NAME = 'shan_srs';
+  const DB_VERSION = 1;
+
+  function initDB() {
+    return new Promise((resolve, reject) => {
+      const request = indexedDB.open(DB_NAME, DB_VERSION);
+      
+      request.onerror = () => reject(request.error);
+      request.onsuccess = () => {
+        db = request.result;
+        resolve(db);
+      };
+      
+      request.onupgradeneeded = (event) => {
+        const database = event.target.result;
+        
+        // Scheduler store: tracks SRS state per card
+        if (!database.objectStoreNames.contains('scheduler')) {
+          const schedulerStore = database.createObjectStore('scheduler', { keyPath: 'card_id' });
+          schedulerStore.createIndex('next_due', 'next_due', { unique: false });
+        }
+        
+        // Reviews store: logs all review attempts
+        if (!database.objectStoreNames.contains('reviews')) {
+          const reviewsStore = database.createObjectStore('reviews', { keyPath: 'id', autoIncrement: true });
+          reviewsStore.createIndex('card_id', 'card_id', { unique: false });
+          reviewsStore.createIndex('ts', 'ts', { unique: false });
+        }
+      };
+    });
+  }
+
+  async function getSchedulerState(cardId) {
+    if (!db) return null;
+    return new Promise((resolve, reject) => {
+      const transaction = db.transaction(['scheduler'], 'readonly');
+      const store = transaction.objectStore('scheduler');
+      const request = store.get(cardId);
+      
+      request.onsuccess = () => resolve(request.result || null);
+      request.onerror = () => reject(request.error);
+    });
+  }
+
+  async function saveSchedulerState(cardId, state) {
+    if (!db) return;
+    return new Promise((resolve, reject) => {
+      const transaction = db.transaction(['scheduler'], 'readwrite');
+      const store = transaction.objectStore('scheduler');
+      const request = store.put({ card_id: cardId, ...state });
+      
+      request.onsuccess = () => resolve();
+      request.onerror = () => reject(request.error);
+    });
+  }
+
+  async function logReview(cardId, rating, responseTime = 0) {
+    if (!db) return;
+    return new Promise((resolve, reject) => {
+      const transaction = db.transaction(['reviews'], 'readwrite');
+      const store = transaction.objectStore('reviews');
+      const request = store.add({
+        card_id: cardId,
+        ts: Date.now(),
+        rating: rating,
+        response_time_ms: responseTime
+      });
+      
+      request.onsuccess = () => resolve();
+      request.onerror = () => reject(request.error);
+    });
+  }
+
+  async function getDueCards() {
+    if (!db) return [];
+    return new Promise((resolve, reject) => {
+      const transaction = db.transaction(['scheduler'], 'readonly');
+      const store = transaction.objectStore('scheduler');
+      const index = store.index('next_due');
+      const request = index.getAll(IDBKeyRange.upperBound(Date.now()));
+      
+      request.onsuccess = () => {
+        const results = request.result || [];
+        // Sort by next_due ascending (most overdue first)
+        results.sort((a, b) => a.next_due - b.next_due);
+        resolve(results);
+      };
+      request.onerror = () => reject(request.error);
+    });
+  }
+
+  /* ------------ SM-2 Algorithm ------------ */
+  function calculateNextReview(rating, currentState) {
+    const now = Date.now();
+    const oneDay = 24 * 60 * 60 * 1000;
+    const tenMinutes = 10 * 60 * 1000;
+    
+    // Initialize if first review
+    if (!currentState) {
+      currentState = {
+        interval: 1,
+        ease_factor: 2.5,
+        reps: 0,
+        lapses: 0,
+        last_reviewed: now
+      };
+    }
+    
+    let newInterval, newEaseFactor, newReps, newLapses;
+    
+    if (rating === 0) { // Again
+      newInterval = tenMinutes;
+      newEaseFactor = Math.max(1.3, currentState.ease_factor - 0.2);
+      newReps = 0;
+      newLapses = currentState.lapses + 1;
+    } else if (rating === 1) { // Hard
+      newInterval = oneDay;
+      newEaseFactor = Math.max(1.3, currentState.ease_factor - 0.15);
+      newReps = currentState.reps + 1;
+      newLapses = currentState.lapses;
+    } else if (rating === 2) { // Good
+      if (currentState.reps === 0) {
+        newInterval = oneDay;
+      } else if (currentState.reps === 1) {
+        newInterval = 3 * oneDay;
+      } else {
+        newInterval = Math.round(currentState.interval * currentState.ease_factor);
+      }
+      newEaseFactor = currentState.ease_factor;
+      newReps = currentState.reps + 1;
+      newLapses = currentState.lapses;
+    } else { // Easy (rating === 3)
+      if (currentState.reps === 0) {
+        newInterval = 4 * oneDay;
+      } else {
+        newInterval = Math.round(currentState.interval * currentState.ease_factor * 1.3);
+      }
+      newEaseFactor = currentState.ease_factor + 0.15;
+      newReps = currentState.reps + 1;
+      newLapses = currentState.lapses;
+    }
+    
+    return {
+      interval: newInterval,
+      ease_factor: newEaseFactor,
+      reps: newReps,
+      lapses: newLapses,
+      next_due: now + newInterval,
+      last_reviewed: now
+    };
+  }
+
+  function formatInterval(intervalMs) {
+    const minutes = Math.floor(intervalMs / (60 * 1000));
+    const hours = Math.floor(intervalMs / (60 * 60 * 1000));
+    const days = Math.floor(intervalMs / (24 * 60 * 60 * 1000));
+    
+    if (days > 0) return `${days}d`;
+    if (hours > 0) return `${hours}h`;
+    if (minutes > 0) return `${minutes}m`;
+    return 'now';
+  }
+
   /* ------------ Data ------------ */
   const RAW = (window.VOCAB && window.VOCAB.lessons) || {};
   const LESSONS = {};
@@ -249,6 +439,7 @@
   const progress=$('#progress');
   const drawPane=$('#drawPane'), pad=$('#pad'), clearBtn=$('#clearBtn');
   const shadowWrap=$('#shadowWrap'), shadowChar=$('#shadowChar');
+  const ratingButtons=$('#ratingButtons');
 
   /* ------------ State ------------ */
   const REVIEW_KEY='shan_review_v1';
@@ -263,17 +454,57 @@
   function fmtZh(trad,simp){ return (trad && simp && trad!==simp) ? (trad + '\\n' + simp).replace(/\\n/g,'<span class="sub"></span>') : (trad || simp || '—'); }
 
   /* ------------ Deck UI ------------ */
-  function refreshCountsLabel(){
+  async function refreshCountsLabel(){
     const was=lessonSelect.value;
     lessonSelect.innerHTML='';
     lessonSelect.append(new Option(`All lessons (${ALL.length})`,'ALL'));
     ORDERED.forEach(k=>lessonSelect.append(new Option(`${k} (${LESSONS[k].length})`,k)));
     lessonSelect.append(new Option(`Review (★) (${reviewSet.size})`,'REVIEW'));
+    
+    // Add due cards count
+    try {
+      const dueCards = await getDueCards();
+      lessonSelect.append(new Option(`Due for Review (${dueCards.length})`,'DUE'));
+    } catch (error) {
+      console.error('Error getting due cards:', error);
+      lessonSelect.append(new Option(`Due for Review (0)`,'DUE'));
+    }
+    
     lessonSelect.value=(was && [...lessonSelect.options].some(o=>o.value===was))?was:'ALL';
   }
-  function setDeckFor(key){
+  async function setDeckFor(key){
     state.key=key; state.index=0; state.revealed=false;
-    deck = key==='ALL' ? ALL.slice() : key==='REVIEW' ? ALL.filter(c=>reviewSet.has(c.id)) : LESSONS[key].slice();
+    
+    if (key === 'ALL') {
+      deck = ALL.slice();
+    } else if (key === 'REVIEW') {
+      deck = ALL.filter(c=>reviewSet.has(c.id));
+    } else if (key === 'DUE') {
+      try {
+        const dueCards = await getDueCards();
+        // Create deck from due card IDs, maintaining order
+        deck = dueCards.map(dueCard => {
+          return ALL.find(card => card.id === dueCard.card_id);
+        }).filter(card => card); // Remove any undefined entries
+        
+        // If no due cards, show a placeholder
+        if (deck.length === 0) {
+          deck = [{
+            id: 'no-due-cards',
+            en: 'All caught up!',
+            trad: '全部完成！',
+            simp: '全部完成！',
+            py: 'quánbù wánchéng!'
+          }];
+        }
+      } catch (error) {
+        console.error('Error loading due cards:', error);
+        deck = [];
+      }
+    } else {
+      deck = LESSONS[key].slice();
+    }
+    
     order=deck.map((_,i)=>i);
     paintCard(cardA, aPrompt, aZh, aPy, aEn, current(), state.prompt, state.revealed);
     paintCard(cardB, bPrompt, bZh, bPy, bEn, {}, state.prompt, false);
@@ -307,11 +538,36 @@
   }
 
   /* ------------ Progress dots ------------ */
-  function drawDots(){
+  async function drawDots(){
     progress.innerHTML='';
     for(let i=0;i<order.length;i++){
       const d=document.createElement('div');
-      d.className='dot'+(i===state.index?' active':'');
+      d.className='dot';
+      
+      // Add SRS status indicator
+      try {
+        const card = deck[order[i]];
+        if (card && card.id) {
+          const schedulerState = await getSchedulerState(card.id);
+          if (schedulerState) {
+            const now = Date.now();
+            const timeUntilDue = schedulerState.next_due - now;
+            const oneDay = 24 * 60 * 60 * 1000;
+            
+            if (timeUntilDue <= 0) {
+              d.classList.add('due'); // Overdue
+            } else if (timeUntilDue <= oneDay) {
+              d.classList.add('due-soon'); // Due within 24h
+            } else {
+              d.classList.add('not-due'); // Not due yet
+            }
+          }
+        }
+      } catch (error) {
+        console.error('Error getting SRS status for dot:', error);
+      }
+      
+      if(i===state.index) d.classList.add('active');
       progress.appendChild(d);
     }
     starBtn.classList.toggle('active', reviewSet.has(current().id));
@@ -360,13 +616,81 @@
     const card = (active==='A')?cardA:cardB;
     state.revealed=!state.revealed;
     showBackOn(card, state.revealed);
+    
+    // Show rating buttons only when card is revealed
+    if (state.revealed) {
+      ratingButtons.classList.remove('hidden');
+      updateRatingButtonLabels();
+    } else {
+      ratingButtons.classList.add('hidden');
+    }
+  }
+
+  async function updateRatingButtonLabels() {
+    const currentCard = current();
+    if (!currentCard || !currentCard.id) return;
+    
+    try {
+      const schedulerState = await getSchedulerState(currentCard.id);
+      
+      // Update button labels with calculated intervals
+      const buttons = ratingButtons.querySelectorAll('.rating-btn');
+      buttons.forEach(btn => {
+        const rating = parseInt(btn.dataset.rating);
+        const newState = calculateNextReview(rating, schedulerState);
+        const intervalSpan = btn.querySelector('.interval');
+        if (intervalSpan) {
+          intervalSpan.textContent = formatInterval(newState.interval);
+        }
+      });
+    } catch (error) {
+      console.error('Error updating rating button labels:', error);
+    }
+  }
+
+  async function handleRating(rating) {
+    const currentCard = current();
+    if (!currentCard || !currentCard.id || currentCard.id === 'no-due-cards') return;
+    
+    try {
+      // Get current scheduler state
+      const schedulerState = await getSchedulerState(currentCard.id);
+      
+      // Calculate new state
+      const newState = calculateNextReview(rating, schedulerState);
+      
+      // Save new state
+      await saveSchedulerState(currentCard.id, newState);
+      
+      // Log the review
+      await logReview(currentCard.id, rating);
+      
+      // Hide rating buttons
+      ratingButtons.classList.add('hidden');
+      
+      // Advance to next card
+      goto(state.index + 1, 1);
+      
+      // Refresh counts
+      refreshCountsLabel();
+      
+    } catch (error) {
+      console.error('Error handling rating:', error);
+    }
   }
 
   /* ------------ Initialize deck ------------ */
-  refreshCountsLabel();
-  setDeckFor('ALL');
-  modeSelect.value=state.prompt;
-  lessonSelect.addEventListener('change',()=>setDeckFor(lessonSelect.value));
+  async function initializeApp() {
+    try {
+      await initDB();
+      await refreshCountsLabel();
+      await setDeckFor('ALL');
+      modeSelect.value=state.prompt;
+      lessonSelect.addEventListener('change',()=>setDeckFor(lessonSelect.value));
+    } catch (error) {
+      console.error('Error initializing app:', error);
+    }
+  }
   modeSelect.addEventListener('change',()=>{
     state.prompt=modeSelect.value;
     const c=current();
@@ -396,6 +720,15 @@
   fsBtn.addEventListener('click', toggleFS);
   document.addEventListener('fullscreenchange', ()=>{
     fsBtn.classList.toggle('active', !!document.fullscreenElement);
+  });
+
+  /* ------------ Rating Button Handlers ------------ */
+  ratingButtons.addEventListener('click', (e) => {
+    const button = e.target.closest('.rating-btn');
+    if (button) {
+      const rating = parseInt(button.dataset.rating);
+      handleRating(rating);
+    }
   });
 
   /* ------------ Hanzi picker for Shadow Mode ------------ */
@@ -528,6 +861,9 @@
 
   /* ------------ Initial paint ------------ */
   paintCard(cardA,aPrompt,aZh,aPy,aEn,current(),state.prompt,state.revealed);
+
+  /* ------------ Initialize App ------------ */
+  initializeApp();
 
   /* ------------ Service Worker Registration ------------ */
   if ('serviceWorker' in navigator) {
