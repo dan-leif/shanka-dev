@@ -101,14 +101,14 @@
 
   /* Two-card stage */
   .stage{position:absolute;inset:0;overflow:hidden}
-  .card{position:absolute;inset:0;display:grid;place-items:center;opacity:1;transform:none;
-        transition:transform .22s ease, opacity .22s ease; will-change:transform,opacity}
-  .to-left{transform:translateX(-40%);opacity:0}
-  .to-right{transform:translateX(40%);opacity:0}
+  .card{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;opacity:1;transform:translate3d(0,0,0);
+        transition:transform .22s ease, opacity .22s ease; will-change:transform,opacity;min-height:100%}
+  .to-left{transform:translate3d(-40%,0,0);opacity:0}
+  .to-right{transform:translate3d(40%,0,0);opacity:0}
   .hidden{display:none}
 
   /* Card content */
-  .panel{max-width:94%;text-align:center}
+  .panel{max-width:94%;text-align:center;min-height:200px;display:flex;flex-direction:column;justify-content:center;height:200px}
   .en{font-size:clamp(18px,3.8vw,28px);font-weight:800}
   .zh{font-family:'TW Kai','WenKaiTCLight','KaiTi','STKaiti','Kaiti SC','DFKai-SB',serif;
       font-size:var(--zh-size);line-height:1.12;font-weight:400;white-space:pre-line}
@@ -124,7 +124,7 @@
   .clearBtn{position:absolute;left:8px;top:8px;z-index:3;width:36px;height:36px;border-radius:9px;border:1px solid var(--btn-border);background:var(--btn);color:var(--text);display:grid;place-items:center;font-size:16px}
 
   /* Progress */
-  .progress{display:flex;gap:6px;justify-content:center;padding:10px}
+  .progress{display:flex;gap:6px;justify-content:center;padding:10px;height:28px;align-items:center}
   .dot{width:8px;height:8px;border-radius:999px;background:#262a36;position:relative}
   .dot.active{background:var(--accent)}
   .dot.due{background:#ff6b6b}
@@ -132,7 +132,7 @@
   .dot.not-due{background:#66bb6a}
 
   /* Rating buttons */
-  .rating-btns{display:flex;gap:8px;justify-content:center;padding:10px;border-top:1px solid var(--divider)}
+  .rating-btns{display:flex;gap:8px;justify-content:center;padding:10px;border-top:1px solid var(--divider);min-height:60px;align-items:center}
   .rating-btn{background:var(--btn);border:1px solid var(--btn-border);color:var(--text);border-radius:12px;padding:12px 16px;font-size:14px;font-weight:600;cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:4px;transition:all 0.2s ease;min-width:70px}
   .rating-btn:hover{background:var(--btn-hover);transform:translateY(-1px)}
   .rating-btn .interval{font-size:11px;opacity:0.7;font-weight:400}
@@ -150,7 +150,7 @@
 <div id="loadingScreen">
   <img id="loadingIcon" src="icons/icon-1024-full.png" alt="Loading">
   <div id="loadingText">Loading...</div>
-  <div id="loadingVersion">v3.0.0</div>
+  <div id="loadingVersion">v3.1.0</div>
 </div>
 <div class="wrap">
   <div class="app">
@@ -509,6 +509,15 @@
   async function setDeckFor(key){
     state.key=key; state.index=0; state.revealed=false;
     
+    // Add a brief fade to mask any layout shifts
+    const stage = document.getElementById('stage');
+    stage.style.transition = 'opacity 0.1s ease';
+    stage.style.opacity = '0.7';
+    
+    // Temporarily disable transitions to prevent visual jumps
+    cardA.style.transition = 'none';
+    cardB.style.transition = 'none';
+    
     if (key === 'ALL') {
       deck = ALL.slice();
     } else if (key === 'REVIEW') {
@@ -544,7 +553,25 @@
     paintCard(cardB, bPrompt, bZh, bPy, bEn, {}, state.prompt, false);
     cardA.classList.remove('hidden'); cardB.classList.add('hidden');
     active='A';
-    drawDots();
+    
+    // Ensure rating buttons are hidden when switching lessons
+    ratingButtons.classList.add('hidden');
+    
+    // Only rebuild dots if the deck size changed, otherwise just update active dot
+    const currentDotCount = progress.querySelectorAll('.dot').length;
+    if (currentDotCount !== deck.length) {
+      drawDots();
+    } else {
+      updateActiveDot();
+    }
+    
+    // Re-enable transitions and restore opacity after a brief delay
+    setTimeout(() => {
+      cardA.style.transition = '';
+      cardB.style.transition = '';
+      stage.style.opacity = '1';
+      stage.style.transition = '';
+    }, 100);
   }
 
   /* ------------ Paint helpers ------------ */
@@ -572,8 +599,37 @@
   }
 
   /* ------------ Progress dots ------------ */
+  function updateActiveDot(){
+    const dots = progress.querySelectorAll('.dot');
+    dots.forEach((dot, i) => {
+      dot.classList.toggle('active', i === state.index);
+    });
+  }
+  
   async function drawDots(){
-    progress.innerHTML='';
+    // Fade out existing dots
+    const existingDots = progress.querySelectorAll('.dot');
+    if (existingDots.length > 0) {
+      progress.style.transition = 'opacity 0.15s ease';
+      progress.style.opacity = '0';
+      
+      // Wait for fade out, then rebuild
+      setTimeout(async () => {
+        progress.innerHTML='';
+        await buildDots();
+        // Fade in new dots
+        progress.style.opacity = '1';
+        setTimeout(() => {
+          progress.style.transition = '';
+        }, 150);
+      }, 150);
+    } else {
+      // No existing dots, just build directly
+      await buildDots();
+    }
+  }
+  
+  async function buildDots() {
     for(let i=0;i<order.length;i++){
       const d=document.createElement('div');
       d.className='dot';
@@ -640,8 +696,9 @@
       curCard.classList.remove('to-left','to-right');
       nextCard.style.transition=''; curCard.style.transition='';
       active = (active==='A')?'B':'A';
-      drawDots();
       stage.removeEventListener('transitionend', done);
+      // Only update the active dot instead of rebuilding all dots
+      updateActiveDot();
     };
     stage.addEventListener('transitionend', done, {once:true});
   }
