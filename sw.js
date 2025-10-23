@@ -1,6 +1,6 @@
 // Service Worker for 閃卡 PWA
 // Use different cache names for dev vs main to avoid conflicts
-const isDev = window.location.pathname.includes('/dev/');
+const isDev = self.location.pathname.includes('/dev/');
 const CACHE_NAME = isDev ? 'shanka-dev-v1' : 'shanka-v1';
 const urlsToCache = [
   './',
