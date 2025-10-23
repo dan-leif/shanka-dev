@@ -7,7 +7,7 @@
 <title>閃卡</title>
 <script>
   function addDevIndicator() {
-    if (window.location.hostname.includes('shanka-dev')) {
+    if (window.location.pathname.includes('shanka-dev') || window.location.hostname.includes('shanka-dev')) {
       document.title = '閃卡 - DEV';
       
       // Add tiny DEV badge
@@ -17,15 +17,16 @@
         position: fixed;
         bottom: 6px;
         right: 6px;
-        background: rgba(255, 149, 0, 0.7);
-        color: white;
-        padding: 2px 4px;
-        border-radius: 3px;
-        font-size: 9px;
-        font-weight: bold;
-        z-index: 9999;
-        pointer-events: none;
-        font-family: system-ui, sans-serif;
+      background: rgba(0, 0, 0, 0.7);
+      color: white;
+      padding: 2px 4px;
+      border-radius: 3px;
+      font-size: 9px;
+      font-weight: bold;
+      z-index: 9999;
+      pointer-events: none;
+      font-family: system-ui, sans-serif;
+      border: 1px solid white;
       `;
       document.body.appendChild(badge);
     }
