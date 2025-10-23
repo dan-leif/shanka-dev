@@ -15,9 +15,8 @@ concurrency:
   cancel-in-progress: false
 
 jobs:
-  # Deploy main branch to production
-  deploy-main:
-    if: github.ref == 'refs/heads/main'
+  # Deploy both main and dev branches to GitHub Pages
+  deploy:
     runs-on: ubuntu-latest
     environment:
       name: github-pages
@@ -37,18 +36,3 @@ jobs:
       - name: Deploy to GitHub Pages
         id: deployment
         uses: actions/deploy-pages@v4
-
-  # Deploy dev branch to gh-pages branch for testing
-  deploy-dev:
-    if: github.ref == 'refs/heads/dev'
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-
-      - name: Deploy to gh-pages branch
-        uses: peaceiris/actions-gh-pages@v3
-        with:
-          github_token: ${{ secrets.GITHUB_TOKEN }}
-          publish_dir: .
-          destination_dir: dev
