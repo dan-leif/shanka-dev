@@ -35,7 +35,7 @@
   function addVersionIndicator() {
     // Get version from loading screen or default
     const versionEl = document.getElementById('loadingVersion');
-    const version = versionEl ? versionEl.textContent.trim() : 'v3.5';
+    const version = versionEl ? versionEl.textContent.trim() : 'v3.7';
     
     // Add version badge (always visible)
     const badge = document.createElement('div');
@@ -175,13 +175,15 @@
   .rating-btn.good:hover{background:#66bb6a20}
   .rating-btn.easy{color:#42a5f5;border-color:#42a5f540}
   .rating-btn.easy:hover{background:#42a5f520}
+  .rating-btn:disabled{opacity:0.4;filter:grayscale(1);cursor:not-allowed;pointer-events:none}
+  .rating-btn:disabled:hover{transform:none;background:var(--btn)}
 </style>
 </head>
 <body>
 <div id="loadingScreen">
   <img id="loadingIcon" src="icons/icon-1024-full.png" alt="Loading">
   <div id="loadingText">Loading...</div>
-  <div id="loadingVersion">v3.5</div>
+  <div id="loadingVersion">v3.7</div>
 </div>
 <div class="wrap">
   <div class="app">
@@ -249,7 +251,7 @@
   </div>
 </div>
 
-<script src="./vocab-1.js?v=3.5"></script>
+<script src="./vocab-1.js?v=3.7"></script>
 <script>
 (function(){
   /* ------------ Font Loading Detection ------------ */
@@ -548,7 +550,9 @@
     lessonSelect.value=(was && [...lessonSelect.options].some(o=>o.value===was))?was:'ALL';
   }
   async function setDeckFor(key){
-    state.key=key; state.index=0; state.revealed=false;
+    state.key=key; state.index=0;
+    // In shadow mode, default to answer side; otherwise start with prompt side
+    state.revealed=state.freeze;
     
     // Add a brief fade to mask any layout shifts
     const stage = document.getElementById('stage');
@@ -598,8 +602,21 @@
     // Update star button state for current card
     updateStarButton();
     
-    // Ensure rating buttons are hidden when switching lessons
-    ratingButtons.classList.add('hidden');
+    // Handle shadow mode if active
+    if(state.freeze && state.revealed){
+      const firstChar = firstHanChar(current().trad || '');
+      if(firstChar){
+        state.shadowGlyph = firstChar;
+        shadowChar.textContent = state.shadowGlyph;
+        fitShadow();
+        shadowWrap.style.display='flex';
+      }
+      ratingButtons.classList.remove('hidden');
+      ratingButtons.querySelectorAll('.rating-btn').forEach(btn => btn.disabled = true);
+    }else{
+      // Ensure rating buttons are hidden when switching lessons (not in shadow mode)
+      ratingButtons.classList.add('hidden');
+    }
     
     // Only rebuild dots if the deck size changed, otherwise just update active dot
     const currentDotCount = progress.querySelectorAll('.dot').length;
@@ -800,8 +817,9 @@
 
     const idx = (nextIndex+order.length)%order.length;
     state.index = idx;
-    state.revealed=false;
-    paintCard(nextCard, nextP, nextZh, nextPy, nextEn, current(), state.prompt, false);
+    // In shadow mode, keep card revealed; otherwise start with prompt side
+    state.revealed=state.freeze;
+    paintCard(nextCard, nextP, nextZh, nextPy, nextEn, current(), state.prompt, state.revealed);
 
     nextCard.classList.remove('hidden','to-left','to-right');
     curCard.classList.remove('to-left','to-right');
@@ -823,13 +841,27 @@
       // Only update the active dot instead of rebuilding all dots
       updateActiveDot();
       updateStarButton();
-      // Hide buttons after transition completes
-      ratingButtons.classList.add('hidden');
+      // Handle shadow mode for new card
+      if(state.freeze){
+        const firstChar = firstHanChar(current().trad || '');
+        if(firstChar){
+          state.shadowGlyph = firstChar;
+          shadowChar.textContent = state.shadowGlyph;
+          fitShadow();
+          shadowWrap.style.display='flex';
+        }
+        ratingButtons.classList.remove('hidden');
+        ratingButtons.querySelectorAll('.rating-btn').forEach(btn => btn.disabled = true);
+      }else{
+        // Hide buttons after transition completes
+        ratingButtons.classList.add('hidden');
+      }
     };
     stage.addEventListener('transitionend', done, {once:true});
   }
 
   function flip(){
+    if(state.freeze) return; // Prevent flipping when in shadow mode
     const card = (active==='A')?cardA:cardB;
     state.revealed=!state.revealed;
     showBackOn(card, state.revealed);
@@ -838,6 +870,10 @@
     if (state.revealed) {
       ratingButtons.classList.remove('hidden');
       updateRatingButtonLabels();
+      // Disable buttons if in shadow mode
+      if(state.freeze){
+        ratingButtons.querySelectorAll('.rating-btn').forEach(btn => btn.disabled = true);
+      }
     } else {
       ratingButtons.classList.add('hidden');
     }
@@ -931,7 +967,30 @@
 
   freezeBtn.addEventListener('click',()=>{
     state.freeze=!state.freeze;
-    if(!state.freeze){ state.shadowGlyph=''; shadowWrap.style.display='none'; }
+    if(state.freeze){
+      // Enable shadow mode: show answer side, display first character, disable buttons
+      state.revealed=true;
+      const card = (active==='A')?cardA:cardB;
+      showBackOn(card, true);
+      const firstChar = firstHanChar(current().trad || '');
+      if(firstChar){
+        state.shadowGlyph = firstChar;
+        shadowChar.textContent = state.shadowGlyph;
+        fitShadow();
+        shadowWrap.style.display='flex';
+      }
+      // Disable rating buttons
+      ratingButtons.querySelectorAll('.rating-btn').forEach(btn => btn.disabled = true);
+    }else{
+      // Disable shadow mode: clear shadow, keep card revealed, re-enable buttons
+      state.shadowGlyph='';
+      shadowWrap.style.display='none';
+      // Re-enable rating buttons (but only show if card is revealed)
+      ratingButtons.querySelectorAll('.rating-btn').forEach(btn => btn.disabled = false);
+      if(state.revealed){
+        ratingButtons.classList.remove('hidden');
+      }
+    }
     drawDots();
   });
 
@@ -948,6 +1007,7 @@
 
   /* ------------ Rating Button Handlers ------------ */
   ratingButtons.addEventListener('click', (e) => {
+    if(state.freeze) return; // Prevent rating when in shadow mode
     const button = e.target.closest('.rating-btn');
     if (button) {
       const rating = parseInt(button.dataset.rating);
@@ -1020,15 +1080,18 @@
   const SWIPE_X=48, SWIPE_MAX_Y=40;
 
   topPane.addEventListener('pointerdown',e=>{
-    if(state.freeze) return; dragging=true; startX=e.clientX; startY=e.clientY; topPane.setPointerCapture(e.pointerId);
+    dragging=true; startX=e.clientX; startY=e.clientY; topPane.setPointerCapture(e.pointerId);
   });
   topPane.addEventListener('pointerup',e=>{
-    if(state.freeze || !dragging) return; dragging=false;
+    if(!dragging) return;
+    dragging=false;
     const dx=e.clientX-startX, dy=e.clientY-startY;
     if(Math.abs(dx)>SWIPE_X && Math.abs(dy)<SWIPE_MAX_Y){
+      // Allow swiping in shadow mode
       if(dx<0) goto(state.index+1, -1); else goto(state.index-1, +1);
     }else{
-      flip();
+      // Only flip if not in shadow mode (flip() already returns early if freeze is true)
+      if(!state.freeze) flip();
     }
   });
   topPane.addEventListener('pointercancel',()=>{ dragging=false; });
