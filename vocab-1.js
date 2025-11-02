@@ -322,7 +322,33 @@ window.VOCAB = {
       {en:"rent",                             trad:"房租", simp:"房租", py:"fángzū"},
       {en:"upstairs",                         trad:"樓上", simp:"楼上", py:"lóushàng"},
       {en:"immediately",                      trad:"馬上", simp:"马上", py:"mǎshàng"}
-    ]
+    ],
+
+// ---- 1-21 (Future Plans) ----
+"Lesson 1-21": [
+  {en:"summer vacation", trad:"暑假", simp:"暑假", py:"shǔjià"},
+  {en:"to graduate", trad:"畢業", simp:"毕业", py:"bìyè"},
+  {en:"to decide", trad:"決定", simp:"决定", py:"juédìng"},
+  {en:"perhaps; maybe; possibly", trad:"可能", simp:"可能", py:"kěnéng"},
+  {en:"to apply", trad:"申請", simp:"申请", py:"shēnqǐng"},
+  {en:"graduate school", trad:"研究生院", simp:"研究生院", py:"yánjiūshēngyuàn"},
+  {en:"to research; to study/examine", trad:"研究", simp:"研究", py:"yánjiū"},
+  {en:"overseas; abroad", trad:"國外", simp:"国外", py:"guówài"},
+  {en:"to study abroad", trad:"留學", simp:"留学", py:"liúxué"},
+  {en:"to seek; to look for", trad:"找", simp:"找", py:"zhǎo"},
+  {en:"to work for others; to be employed", trad:"打工", simp:"打工", py:"dǎgōng"},
+  {en:"(M.W. for companies, enterprises, stores)", trad:"家", simp:"家", py:"jiā"},
+  {en:"company", trad:"公司", simp:"公司", py:"gōngsī"},
+  {en:"internship; to practice; to intern", trad:"實習", simp:"实习", py:"shíxí"},
+  {en:"computer", trad:"電腦", simp:"电脑", py:"diànnǎo"},
+  {en:"summer vacation (term)", trad:"暑期", simp:"暑期", py:"shǔqī"},
+  {en:"class", trad:"班", simp:"班", py:"bān"},
+  {en:"at the same time", trad:"一面", simp:"一面", py:"yīmiàn"},
+  {en:"interesting; enjoyable", trad:"有意思", simp:"有意思", py:"yǒuyìsi"},
+  {en:"happy", trad:"愉快", simp:"愉快", py:"yúkuài"},
+  {en:"have a pleasant journey", trad:"一路平安", simp:"一路平安", py:"yílùpíng’ān"},
+  {en:"good luck", trad:"好運", simp:"好运", py:"hǎoyùn"}
+]
   }
 };
 
