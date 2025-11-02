@@ -32,11 +32,41 @@
     }
   }
   
+  function addVersionIndicator() {
+    // Get version from loading screen or default
+    const versionEl = document.getElementById('loadingVersion');
+    const version = versionEl ? versionEl.textContent.trim() : 'v3.2';
+    
+    // Add version badge (always visible)
+    const badge = document.createElement('div');
+    badge.textContent = version;
+    badge.style.cssText = `
+      position: fixed;
+      bottom: 18px;
+      left: 18px;
+      background: #111318;
+      color: #303645;
+      padding: 2px 4px;
+      border-radius: 3px;
+      font-size: 9px;
+      font-weight: bold;
+      z-index: 9999;
+      pointer-events: none;
+      font-family: system-ui, sans-serif;
+      border: 1px solid #303645;
+      `;
+    document.body.appendChild(badge);
+  }
+  
   // Run when DOM is ready
   if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', addDevIndicator);
+    document.addEventListener('DOMContentLoaded', () => {
+      addDevIndicator();
+      addVersionIndicator();
+    });
   } else {
     addDevIndicator();
+    addVersionIndicator();
   }
 </script>
 <meta name="theme-color" content="#0b0c10" />
@@ -151,7 +181,7 @@
 <div id="loadingScreen">
   <img id="loadingIcon" src="icons/icon-1024-full.png" alt="Loading">
   <div id="loadingText">Loading...</div>
-  <div id="loadingVersion">v3.1.0</div>
+  <div id="loadingVersion">v3.2</div>
 </div>
 <div class="wrap">
   <div class="app">
@@ -219,7 +249,7 @@
   </div>
 </div>
 
-<script src="./vocab-1.js?v=3.0.0"></script>
+<script src="./vocab-1.js?v=3.2"></script>
 <script>
 (function(){
   /* ------------ Font Loading Detection ------------ */
@@ -607,6 +637,22 @@
     });
   }
   
+  async function updateDotColor(dotIndex, rating) {
+    const dots = progress.querySelectorAll('.dot');
+    if (dotIndex >= 0 && dotIndex < dots.length) {
+      const dot = dots[dotIndex];
+      // Remove all rating classes
+      dot.classList.remove('again', 'hard', 'good', 'easy');
+      // Add the appropriate class based on rating
+      if (rating !== undefined && rating !== null) {
+        const ratingClass = ['again', 'hard', 'good', 'easy'][rating];
+        if (ratingClass) {
+          dot.classList.add(ratingClass);
+        }
+      }
+    }
+  }
+  
   async function drawDots(){
     // Fade out existing dots
     const existingDots = progress.querySelectorAll('.dot');
@@ -752,6 +798,10 @@
       
       // Log the review
       await logReview(currentCard.id, rating);
+      
+      // Update the dot color for the card we just rated
+      const currentIndex = state.index;
+      await updateDotColor(currentIndex, rating);
       
       // Hide rating buttons
       ratingButtons.classList.add('hidden');
