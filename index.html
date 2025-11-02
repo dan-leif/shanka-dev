@@ -126,10 +126,11 @@
   /* Progress */
   .progress{display:flex;gap:6px;justify-content:center;padding:10px;height:28px;align-items:center}
   .dot{width:8px;height:8px;border-radius:999px;background:#262a36;position:relative}
-  .dot.active{background:var(--accent)}
-  .dot.due{background:#ff6b6b}
-  .dot.due-soon{background:#ffa726}
-  .dot.not-due{background:#66bb6a}
+  .dot.again{background:#ff6b6b}
+  .dot.hard{background:#ffa726}
+  .dot.good{background:#66bb6a}
+  .dot.easy{background:#42a5f5}
+  .dot.active{background:#fff}
 
   /* Rating buttons */
   .rating-btns{display:flex;gap:8px;justify-content:center;padding:10px;border-top:1px solid var(--divider);min-height:60px;align-items:center}
@@ -634,27 +635,21 @@
       const d=document.createElement('div');
       d.className='dot';
       
-      // Add SRS status indicator
+      // Add rating-based color indicator
       try {
         const card = deck[order[i]];
         if (card && card.id) {
           const schedulerState = await getSchedulerState(card.id);
-          if (schedulerState) {
-            const now = Date.now();
-            const timeUntilDue = schedulerState.next_due - now;
-            const oneDay = 24 * 60 * 60 * 1000;
-            
-            if (timeUntilDue <= 0) {
-              d.classList.add('due'); // Overdue
-            } else if (timeUntilDue <= oneDay) {
-              d.classList.add('due-soon'); // Due within 24h
-            } else {
-              d.classList.add('not-due'); // Not due yet
+          if (schedulerState && schedulerState.last_rating !== undefined) {
+            // Map rating to CSS class: 0=again, 1=hard, 2=good, 3=easy
+            const ratingClass = ['again', 'hard', 'good', 'easy'][schedulerState.last_rating];
+            if (ratingClass) {
+              d.classList.add(ratingClass);
             }
           }
         }
       } catch (error) {
-        console.error('Error getting SRS status for dot:', error);
+        console.error('Error getting rating for dot:', error);
       }
       
       if(i===state.index) d.classList.add('active');
@@ -749,6 +744,8 @@
       
       // Calculate new state
       const newState = calculateNextReview(rating, schedulerState);
+      // Store the last rating for dot color coding
+      newState.last_rating = rating;
       
       // Save new state
       await saveSchedulerState(currentCard.id, newState);
