@@ -35,7 +35,7 @@
   function addVersionIndicator() {
     // Get version from loading screen or default
     const versionEl = document.getElementById('loadingVersion');
-    const version = versionEl ? versionEl.textContent.trim() : 'v3.3';
+    const version = versionEl ? versionEl.textContent.trim() : 'v3.4';
     
     // Add version badge (always visible)
     const badge = document.createElement('div');
@@ -154,8 +154,8 @@
   .clearBtn{position:absolute;left:8px;top:8px;z-index:3;width:36px;height:36px;border-radius:9px;border:1px solid var(--btn-border);background:var(--btn);color:var(--text);display:grid;place-items:center;font-size:16px}
 
   /* Progress */
-  .progress{display:flex;gap:6px;justify-content:center;padding:10px;height:28px;align-items:center}
-  .dot{width:8px;height:8px;border-radius:999px;background:#262a36;position:relative}
+  .progress{display:flex;justify-content:center;padding:10px;height:28px;align-items:center;gap:var(--dot-gap, 6px)}
+  .dot{width:var(--dot-width, 8px);height:8px;border-radius:999px;background:#262a36;position:relative;flex-shrink:0}
   .dot.again{background:#ff6b6b}
   .dot.hard{background:#ffa726}
   .dot.good{background:#66bb6a}
@@ -181,7 +181,7 @@
 <div id="loadingScreen">
   <img id="loadingIcon" src="icons/icon-1024-full.png" alt="Loading">
   <div id="loadingText">Loading...</div>
-  <div id="loadingVersion">v3.3</div>
+  <div id="loadingVersion">v3.4</div>
 </div>
 <div class="wrap">
   <div class="app">
@@ -249,7 +249,7 @@
   </div>
 </div>
 
-<script src="./vocab-1.js?v=3.3"></script>
+<script src="./vocab-1.js?v=3.4"></script>
 <script>
 (function(){
   /* ------------ Font Loading Detection ------------ */
@@ -519,6 +519,17 @@
   function fmtZh(trad,simp){ return (trad && simp && trad!==simp) ? (trad + '\\n' + simp).replace(/\\n/g,'<span class="sub"></span>') : (trad || simp || '—'); }
 
   /* ------------ Deck UI ------------ */
+  function updateReviewCountLabel(){
+    // Update just the Review option text without rebuilding the entire dropdown
+    const options = lessonSelect.options;
+    for (let i = 0; i < options.length; i++) {
+      if (options[i].value === 'REVIEW') {
+        options[i].text = `Review (★) (${reviewSet.size})`;
+        return;
+      }
+    }
+  }
+  
   async function refreshCountsLabel(){
     const was=lessonSelect.value;
     lessonSelect.innerHTML='';
@@ -585,6 +596,9 @@
     cardA.classList.remove('hidden'); cardB.classList.add('hidden');
     active='A';
     
+    // Update star button state for current card
+    updateStarButton();
+    
     // Ensure rating buttons are hidden when switching lessons
     ratingButtons.classList.add('hidden');
     
@@ -637,6 +651,10 @@
     });
   }
   
+  function updateStarButton(){
+    starBtn.classList.toggle('active', reviewSet.has(current().id));
+  }
+  
   async function updateDotColor(dotIndex, rating) {
     const dots = progress.querySelectorAll('.dot');
     if (dotIndex >= 0 && dotIndex < dots.length) {
@@ -676,7 +694,72 @@
     }
   }
   
+  function calculateDotDimensions(cardCount) {
+    if (cardCount === 0) return { width: 8, gap: 6 };
+    
+    // Get container width, accounting for padding (10px on each side = 20px total)
+    const container = progress.getBoundingClientRect();
+    const availableWidth = container.width - 20; // Subtract padding
+    
+    // Fixed height: 8px (won't change)
+    const fixedHeight = 8;
+    
+    // Minimum width: 1px (can become vertical lines)
+    const minWidth = 1;
+    const minGap = 0; // Gap can disappear completely
+    
+    // Maximum width: 8px (square dots)
+    const maxWidth = 8;
+    const maxGap = 6;
+    
+    // Calculate: availableWidth = (cardCount * dotWidth) + ((cardCount - 1) * gap)
+    // Start by trying with no gap
+    let optimalWidth = availableWidth / cardCount;
+    
+    // If we can fit with max width and gap, use defaults
+    if ((cardCount * maxWidth) + ((cardCount - 1) * maxGap) <= availableWidth) {
+      return { width: maxWidth, gap: maxGap };
+    }
+    
+    // Calculate optimal width and gap to fit all cards
+    // availableWidth = (cardCount * width) + ((cardCount - 1) * gap)
+    // Try to maximize width while fitting
+    
+    // If single card, just use available space (capped at maxWidth)
+    if (cardCount === 1) {
+      return { width: Math.min(maxWidth, availableWidth), gap: 0 };
+    }
+    
+    // Calculate with minimum gap first
+    let width = (availableWidth - (cardCount - 1) * minGap) / cardCount;
+    
+    // If width is too small, reduce gap to zero and recalculate
+    if (width < minWidth) {
+      width = availableWidth / cardCount;
+      return { width: Math.max(minWidth, width), gap: 0 };
+    }
+    
+    // If width is larger than max, use max and calculate gap
+    if (width > maxWidth) {
+      width = maxWidth;
+      const remainingSpace = availableWidth - (cardCount * maxWidth);
+      const gap = cardCount > 1 ? Math.max(minGap, Math.min(maxGap, remainingSpace / (cardCount - 1))) : 0;
+      return { width: maxWidth, gap: gap };
+    }
+    
+    // Width is between min and max, calculate gap
+    const remainingSpace = availableWidth - (cardCount * width);
+    const gap = cardCount > 1 ? Math.max(minGap, remainingSpace / (cardCount - 1)) : 0;
+    
+    return { width: Math.max(minWidth, width), gap: Math.max(minGap, gap) };
+  }
+  
   async function buildDots() {
+    // Calculate dot dimensions to fit all cards
+    const dimensions = calculateDotDimensions(order.length);
+    progress.style.setProperty('--dot-width', `${dimensions.width}px`);
+    progress.style.setProperty('--dot-gap', `${dimensions.gap}px`);
+    
     for(let i=0;i<order.length;i++){
       const d=document.createElement('div');
       d.className='dot';
@@ -701,7 +784,7 @@
       if(i===state.index) d.classList.add('active');
       progress.appendChild(d);
     }
-    starBtn.classList.toggle('active', reviewSet.has(current().id));
+    updateStarButton();
     freezeBtn.classList.toggle('active', state.freeze);
   }
 
@@ -740,6 +823,7 @@
       stage.removeEventListener('transitionend', done);
       // Only update the active dot instead of rebuilding all dots
       updateActiveDot();
+      updateStarButton();
     };
     stage.addEventListener('transitionend', done, {once:true});
   }
@@ -834,13 +918,16 @@
     const c=current();
     if(active==='A') paintCard(cardA,aPrompt,aZh,aPy,aEn,c,state.prompt,state.revealed);
     else paintCard(cardB,bPrompt,bZh,bPy,bEn,c,state.prompt,state.revealed);
+    updateStarButton();
   });
 
   /* ------------ Review / Freeze / Fullscreen ------------ */
   starBtn.addEventListener('click',()=>{
     const id=current().id;
     if(reviewSet.has(id)) reviewSet.delete(id); else reviewSet.add(id);
-    saveReview(); refreshCountsLabel(); drawDots();
+    saveReview();
+    updateReviewCountLabel(); // Update just the review count, not the entire dropdown
+    updateStarButton(); // Update star button state (dots don't need to change)
   });
 
   freezeBtn.addEventListener('click',()=>{
@@ -994,6 +1081,16 @@
   clearBtn.addEventListener('click', clearPad);
 
   window.addEventListener('resize', resizePad, {passive:true});
+  window.addEventListener('resize', () => {
+    // Recalculate dot dimensions when window resizes
+    const currentDotCount = progress.querySelectorAll('.dot').length;
+    if (currentDotCount > 0 && currentDotCount === order.length) {
+      // Only recalculate if dots are already rendered
+      const dimensions = calculateDotDimensions(order.length);
+      progress.style.setProperty('--dot-width', `${dimensions.width}px`);
+      progress.style.setProperty('--dot-gap', `${dimensions.gap}px`);
+    }
+  }, {passive:true});
   resizePad();
   drawDots();
 
