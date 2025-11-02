@@ -35,7 +35,7 @@
   function addVersionIndicator() {
     // Get version from loading screen or default
     const versionEl = document.getElementById('loadingVersion');
-    const version = versionEl ? versionEl.textContent.trim() : 'v3.7';
+    const version = versionEl ? versionEl.textContent.trim() : 'v4.1';
     
     // Add version badge (always visible)
     const badge = document.createElement('div');
@@ -152,6 +152,13 @@
   #shadowChar{color:#fff;opacity:.14;line-height:1;text-align:center;font-weight:400;
               font-family:'TW Kai','WenKaiTCLight','KaiTi','STKaiti','Kaiti SC','DFKai-SB',serif;}
   .clearBtn{position:absolute;left:8px;top:8px;z-index:3;width:36px;height:36px;border-radius:9px;border:1px solid var(--btn-border);background:var(--btn);color:var(--text);display:grid;place-items:center;font-size:16px}
+  .lookupBtn{position:absolute;right:8px;top:8px;z-index:3;width:36px;height:36px;border-radius:9px;border:1px solid var(--btn-border);background:var(--btn);color:var(--text);display:none;font-size:24px;cursor:pointer;line-height:1}
+  .lookupBtn.visible{display:grid;place-items:center}
+  .lookupIcon{display:inline-block;transform:translateY(-3px);line-height:1}
+  .lookupMenu{position:absolute;right:8px;top:48px;z-index:4;background:var(--panel);border:1px solid var(--btn-border);border-radius:12px;padding:8px;min-width:120px;box-shadow:0 4px 12px rgba(0,0,0,0.3);display:none;flex-direction:column;gap:4px}
+  .lookupMenu.visible{display:flex}
+  .lookupMenuItem{padding:10px 12px;border-radius:8px;cursor:pointer;font-size:14px;color:var(--text);background:transparent;border:none;text-align:left;transition:background 0.2s ease}
+  .lookupMenuItem:hover{background:var(--btn-hover)}
 
   /* Progress */
   .progress{display:flex;justify-content:center;padding:10px;height:28px;align-items:center;gap:var(--dot-gap, 6px)}
@@ -183,7 +190,7 @@
 <div id="loadingScreen">
   <img id="loadingIcon" src="icons/icon-1024-full.png" alt="Loading">
   <div id="loadingText">Loading...</div>
-  <div id="loadingVersion">v3.7</div>
+  <div id="loadingVersion">v4.1</div>
 </div>
 <div class="wrap">
   <div class="app">
@@ -235,6 +242,12 @@
       <div class="bottom" id="drawPane">
         <div id="shadowWrap"><div id="shadowChar"></div></div>
         <button id="clearBtn" class="clearBtn" title="Clear">✕</button>
+        <button id="lookupBtn" class="lookupBtn" title="Lookup"><span class="lookupIcon">⌕</span></button>
+        <div id="lookupMenu" class="lookupMenu">
+          <button class="lookupMenuItem" data-lookup="wiki">Wiki</button>
+          <button class="lookupMenuItem" data-lookup="mnemonics">Mnemonics</button>
+          <button class="lookupMenuItem" data-lookup="hanzihero">HanziHero</button>
+        </div>
         <canvas id="pad"></canvas>
       </div>
     </div>
@@ -251,7 +264,7 @@
   </div>
 </div>
 
-<script src="./vocab-1.js?v=3.7"></script>
+<script src="./vocab-1.js?v=4.1"></script>
 <script>
 (function(){
   /* ------------ Font Loading Detection ------------ */
@@ -506,6 +519,7 @@
   const drawPane=$('#drawPane'), pad=$('#pad'), clearBtn=$('#clearBtn');
   const shadowWrap=$('#shadowWrap'), shadowChar=$('#shadowChar');
   const ratingButtons=$('#ratingButtons');
+  const lookupBtn=$('#lookupBtn'), lookupMenu=$('#lookupMenu');
 
   /* ------------ State ------------ */
   const REVIEW_KEY='shan_review_v1';
@@ -614,9 +628,15 @@
       }
       ratingButtons.classList.remove('hidden');
       ratingButtons.querySelectorAll('.rating-btn').forEach(btn => btn.disabled = true);
+      // Show lookup button if character exists
+      if(state.shadowGlyph){
+        lookupBtn.classList.add('visible');
+      }
     }else{
       // Ensure rating buttons are hidden when switching lessons (not in shadow mode)
       ratingButtons.classList.add('hidden');
+      lookupBtn.classList.remove('visible');
+      lookupMenu.classList.remove('visible');
     }
     
     // Only rebuild dots if the deck size changed, otherwise just update active dot
@@ -854,9 +874,15 @@
         }
         ratingButtons.classList.remove('hidden');
         ratingButtons.querySelectorAll('.rating-btn').forEach(btn => btn.disabled = true);
+        // Show lookup button if character exists
+        if(state.shadowGlyph){
+          lookupBtn.classList.add('visible');
+        }
       }else{
         // Hide buttons after transition completes
         ratingButtons.classList.add('hidden');
+        lookupBtn.classList.remove('visible');
+        lookupMenu.classList.remove('visible');
       }
     };
     stage.addEventListener('transitionend', done, {once:true});
@@ -983,10 +1009,16 @@
       }
       // Disable rating buttons
       ratingButtons.querySelectorAll('.rating-btn').forEach(btn => btn.disabled = true);
+      // Show lookup button if character exists
+      if(state.shadowGlyph){
+        lookupBtn.classList.add('visible');
+      }
     }else{
       // Disable shadow mode: clear shadow, keep card revealed, re-enable buttons
       state.shadowGlyph='';
       shadowWrap.style.display='none';
+      lookupBtn.classList.remove('visible');
+      lookupMenu.classList.remove('visible');
       // Re-enable rating buttons (but only show if card is revealed)
       ratingButtons.querySelectorAll('.rating-btn').forEach(btn => btn.disabled = false);
       if(state.revealed){
@@ -1113,6 +1145,7 @@
     state.shadowGlyph = ch;
     fitShadow(); shadowChar.textContent = state.shadowGlyph;
     shadowWrap.style.display='flex';
+    lookupBtn.classList.add('visible');
   });
 
   /* ------------ Drawing pad ------------ */
@@ -1131,6 +1164,44 @@
     shadowChar.style.fontSize = Math.floor(Math.min(r.width,r.height)*0.86)+'px';
   }
   function clearPad(){ ctx.clearRect(0,0,pad.width,pad.height); }
+  
+  /* ------------ Lookup Menu ------------ */
+  lookupBtn.addEventListener('click',(e)=>{
+    e.stopPropagation();
+    lookupMenu.classList.toggle('visible');
+  });
+  
+  // Close menu when clicking outside
+  document.addEventListener('click',(e)=>{
+    if(!lookupMenu.contains(e.target) && e.target !== lookupBtn){
+      lookupMenu.classList.remove('visible');
+    }
+  });
+  
+  // Handle menu item clicks
+  lookupMenu.querySelectorAll('.lookupMenuItem').forEach(item => {
+    item.addEventListener('click',(e)=>{
+      e.stopPropagation();
+      if(!state.shadowGlyph) return;
+      
+      const lookupType = item.dataset.lookup;
+      let url = '';
+      
+      if(lookupType === 'wiki'){
+        url = `https://www.dong-chinese.com/wiki/${encodeURIComponent(state.shadowGlyph)}`;
+      }else if(lookupType === 'mnemonics'){
+        url = `https://rtega.be/chmn/?c=${encodeURIComponent(state.shadowGlyph)}`;
+      }else if(lookupType === 'hanzihero'){
+        url = `https://hanzihero.com/traditional/characters/${encodeURIComponent(state.shadowGlyph)}`;
+      }
+      
+      if(url){
+        window.open(url, '_blank');
+        lookupMenu.classList.remove('visible');
+      }
+    });
+  });
+  
   pad.addEventListener('pointerdown',e=>{
     const r=pad.getBoundingClientRect();
     drawing=true; lastX=e.clientX-r.left; lastY=e.clientY-r.top; pad.setPointerCapture(e.pointerId);
