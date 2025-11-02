@@ -553,6 +553,7 @@
     state.key=key; state.index=0;
     // In shadow mode, default to answer side; otherwise start with prompt side
     state.revealed=state.freeze;
+    clearPad(); // Clear drawing area when changing decks
     
     // Add a brief fade to mask any layout shifts
     const stage = document.getElementById('stage');
@@ -808,6 +809,7 @@
   let active='A';
   function goto(nextIndex, dir){
     if(order.length===0) return;
+    clearPad(); // Clear drawing area when switching cards
     const nextCard = (active==='A')?cardB:cardA;
     const nextP = (active==='A')?bPrompt:aPrompt;
     const nextZh = (active==='A')?bZh:aZh;
