@@ -35,7 +35,7 @@
   function addVersionIndicator() {
     // Get version from loading screen or default
     const versionEl = document.getElementById('loadingVersion');
-    const version = versionEl ? versionEl.textContent.trim() : 'v3.2';
+    const version = versionEl ? versionEl.textContent.trim() : 'v3.3';
     
     // Add version badge (always visible)
     const badge = document.createElement('div');
@@ -181,7 +181,7 @@
 <div id="loadingScreen">
   <img id="loadingIcon" src="icons/icon-1024-full.png" alt="Loading">
   <div id="loadingText">Loading...</div>
-  <div id="loadingVersion">v3.2</div>
+  <div id="loadingVersion">v3.3</div>
 </div>
 <div class="wrap">
   <div class="app">
@@ -249,7 +249,7 @@
   </div>
 </div>
 
-<script src="./vocab-1.js?v=3.2"></script>
+<script src="./vocab-1.js?v=3.3"></script>
 <script>
 (function(){
   /* ------------ Font Loading Detection ------------ */
@@ -806,8 +806,8 @@
       // Hide rating buttons
       ratingButtons.classList.add('hidden');
       
-      // Advance to next card
-      goto(state.index + 1, 1);
+      // Advance to next card (direction -1 for right-to-left animation)
+      goto(state.index + 1, -1);
       
       // Refresh counts
       refreshCountsLabel();
