@@ -348,6 +348,40 @@ window.VOCAB = {
   {en:"happy", trad:"愉快", simp:"愉快", py:"yúkuài"},
   {en:"have a pleasant journey", trad:"一路平安", simp:"一路平安", py:"yílùpíng’ān"},
   {en:"good luck", trad:"好運", simp:"好运", py:"hǎoyùn"}
+],
+
+// ---- 1-22 (Arts and Culture) ----
+"Lesson 1-22": [
+  {en:"because", trad:"因為", simp:"因为", py:"yīnwèi"},
+  {en:"but; however", trad:"不過", simp:"不过", py:"búguò"},
+  {en:"conscientious; serious", trad:"認真", simp:"认真", py:"rènzhēn"},
+  {en:"already", trad:"已經", simp:"已经", py:"yǐjīng"},
+  {en:"beautiful", trad:"美麗", simp:"美丽", py:"měilì"},
+  {en:"city", trad:"城市", simp:"城市", py:"chéngshì"},
+  {en:"everywhere", trad:"到處", simp:"到处", py:"dàochù"},
+  {en:"new", trad:"新", simp:"新", py:"xīn"},
+  {en:"some", trad:"一些", simp:"一些", py:"yìxiē"},
+  {en:"place", trad:"地方", simp:"地方", py:"dìfāng"},
+  {en:"activity", trad:"活動", simp:"活动", py:"huódòng"},
+  {en:"for example", trad:"比如", simp:"比如", py:"bǐrú"},
+  {en:"Peking Opera", trad:"京劇", simp:"京剧", py:"jīngjù"},
+  {en:"calligraphy", trad:"書法", simp:"书法", py:"shūfǎ"},
+  {en:"et cetera", trad:"等等", simp:"等等", py:"děngděng"},
+  {en:"thing", trad:"東西", simp:"东西", py:"dōngxi"},
+  {en:"little steamed buns with stuffing", trad:"小籠包", simp:"小笼包", py:"xiǎolóngbāo"},
+  {en:"opportunity", trad:"機會", simp:"机会", py:"jīhuì"},
+  {en:"to have a taste", trad:"嚐嚐", simp:"尝尝", py:"chángchang"},
+  {en:"to start; to begin", trad:"開始", simp:"开始", py:"kāishǐ"},
+  {en:"happy", trad:"高興", simp:"高兴", py:"gāoxìng"},
+  {en:"to receive", trad:"收到", simp:"收到", py:"shōudào"},
+  {en:"it seems", trad:"看來", simp:"看来", py:"kànlái"},
+  {en:"happy", trad:"開心", simp:"开心", py:"kāixīn"},
+  {en:"colleague; co-worker", trad:"同事", simp:"同事", py:"tóngshì"},
+  {en:"warm-hearted", trad:"熱心", simp:"热心", py:"rèxīn"},
+  {en:"boss", trad:"老闆", simp:"老板", py:"lǎobǎn"},
+  {en:"to learn; to master", trad:"學到", simp:"学到", py:"xuédào"},
+  {en:"to write a letter (to the speaker)", trad:"來信", simp:"来信", py:"láixìn"},
+  {en:"to take care", trad:"保重", simp:"保重", py:"bǎozhòng"}
 ]
   }
 };
