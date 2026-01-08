@@ -381,7 +381,42 @@ window.VOCAB = {
   {en:"boss", trad:"老闆", simp:"老板", py:"lǎobǎn"},
   {en:"to learn; to master", trad:"學到", simp:"学到", py:"xuédào"},
   {en:"to write a letter (to the speaker)", trad:"來信", simp:"来信", py:"láixìn"},
-  {en:"to take care", trad:"保重", simp:"保重", py:"bǎozhòng"}
+    {en:"to take care", trad:"保重", simp:"保重", py:"bǎozhòng"}
+],
+
+// ---- 2-1 (Moving to a New Place) ----
+"Lesson 2-1": [
+  {en:"to move backwards; to reverse", trad:"倒", simp:"倒", py:"dào"},
+  {en:"don't", trad:"別", simp:"别", py:"bié"},
+  {en:"landlord", trad:"房東", simp:"房东", py:"fángdōng"},
+  {en:"tree", trad:"樹", simp:"树", py:"shù"},
+  {en:"to collide with; hit; strike", trad:"撞", simp:"撞", py:"zhuàng"},
+  {en:"bad", trad:"壞", simp:"坏", py:"huài"},
+  {en:"(used at the sentence end to soften the tone)", trad:"呀", simp:"呀", py:"ya"},
+  {en:"careful, cautious; to be careful", trad:"小心", simp:"小心", py:"xiǎoxīn"},
+  {en:"mirror", trad:"鏡子", simp:"镜子", py:"jìngzi"},
+  {en:"broken", trad:"破", simp:"破", py:"pò"},
+  {en:"to collaborate by dividing up the work", trad:"分工合作", simp:"分工合作", py:"fēngōnghézuò"},
+  {en:"idea", trad:"主意", simp:"主意", py:"zhǔyì"},
+  {en:"to be responsible for", trad:"負責", simp:"负责", py:"fùzé"},
+  {en:"luggage; baggage", trad:"行李", simp:"行李", py:"xíngli"},
+  {en:"to put; place", trad:"放", simp:"放", py:"fàng"},
+  {en:"to install, assemble; to load, pack", trad:"裝", simp:"装", py:"zhuāng"},
+  {en:"to clean; sweep", trad:"掃", simp:"扫", py:"sǎo"},
+  {en:"to arrange; sort out", trad:"整理", simp:"整理", py:"zhěngli"},
+  {en:"box; case", trad:"箱子", simp:"箱子", py:"xiāngzi"},
+  {en:"clothes", trad:"衣服", simp:"衣服", py:"yīfu"},
+  {en:"to hang", trad:"掛", simp:"挂", py:"guà"},
+  {en:"tired; get tired of", trad:"累", simp:"累", py:"lèi"},
+  {en:"to act as the host; to treat", trad:"請客", simp:"请客", py:"qǐngkè"},
+  {en:"dead; to die", trad:"死", simp:"死", py:"sǐ"},
+  {en:"nearby", trad:"附近", simp:"附近", py:"fùjìn"},
+  {en:"to forget", trad:"忘", simp:"忘", py:"wàng"},
+  {en:"door", trad:"門", simp:"门", py:"mén"},
+  {en:"window", trad:"窗", simp:"窗", py:"chuāng"},
+  {en:"to close (door/window)", trad:"關上", simp:"关上", py:"guānshàng"},
+  {en:"coat", trad:"外套", simp:"外套", py:"wàitào"},
+  {en:"we; us (when used by the speaker to include him/herself and the person(s) being spoken to)", trad:"咱們", simp:"咱们", py:"zánmen"}
 ]
   }
 };
