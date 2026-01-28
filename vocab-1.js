@@ -417,6 +417,40 @@ window.VOCAB = {
   {en:"to close (door/window)", trad:"關上", simp:"关上", py:"guānshàng"},
   {en:"coat", trad:"外套", simp:"外套", py:"wàitào"},
   {en:"we; us (when used by the speaker to include him/herself and the person(s) being spoken to)", trad:"咱們", simp:"咱们", py:"zánmen"}
+],
+
+// ---- 2-2 (Experiencing Culture and the Arts) ----
+"Lesson 2-2": [
+  {en:"wall", trad:"牆", simp:"墙", py:"qiáng"},
+  {en:"(indicates continuous or stationary status)", trad:"著", simp:"着", py:"zhe"},
+  {en:"photograph, picture", trad:"照片", simp:"照片", py:"zhàopiàn"},
+  {en:"clothes", trad:"服裝", simp:"服装", py:"fúzhuāng"},
+  {en:"(performance) stage", trad:"舞台", simp:"舞台", py:"wŭtái"},
+  {en:"to place, put", trad:"擺", simp:"摆", py:"băi"},
+  {en:"various, all kinds of", trad:"各種", simp:"各种", py:"gèzhŏng"},
+  {en:"musical instrument", trad:"樂器", simp:"乐器", py:"yuèqì"},
+  {en:"actor or actress, performer", trad:"演員", simp:"演员", py:"yǎnyuán"},
+  {en:"performance / to perform", trad:"表演", simp:"表演", py:"biǎoyăn"},
+  {en:"musician", trad:"樂師", simp:"乐师", py:"yuèshī"},
+  {en:"to play (the drum); to hit", trad:"打", simp:"打", py:"dă"},
+  {en:"drum", trad:"鼓", simp:"鼓", py:"gŭ"},
+  {en:"to play (a stringed musical instrument); to pull", trad:"拉", simp:"拉", py:"lā"},
+  {en:"two-stringed bowed instruments", trad:"胡琴", simp:"胡琴", py:"húqín"},
+  {en:"to play, pluck, strike", trad:"彈奏", simp:"弹奏", py:"tánzòu"},
+  {en:"oneself", trad:"自己", simp:"自己", py:"zìjǐ"},
+  {en:"measure word (classifier) for Chinese theater performances", trad:"齣", simp:"出", py:"chū"},
+  {en:"play, drama", trad:"戲", simp:"戏", py:"xì"},
+  {en:"to paint, draw / a painting", trad:"畫", simp:"画", py:"huà"},
+  {en:"face", trad:"臉", simp:"脸", py:"liăn"},
+  {en:"to hold, take", trad:"拿", simp:"拿", py:"ná"},
+  {en:"measure word (classifier) for a utensil with a handle", trad:"把", simp:"把", py:"bă"},
+  {en:"knife", trad:"刀", simp:"刀", py:"dāo"},
+  {en:"energetic, high-spirited, proud", trad:"神氣", simp:"神气", py:"shénqì"},
+  {en:"seat", trad:"座位", simp:"座位", py:"zuòwèi"},
+  {en:"full", trad:"滿", simp:"满", py:"măn"},
+  {en:"audience", trad:"觀眾", simp:"观众", py:"guānzhòng"},
+  {en:"to stand", trad:"站", simp:"站", py:"zhàn"},
+  {en:"it's a deal", trad:"一言為定", simp:"一言为定", py:"yì yán wéi dìng"}
 ]
   }
 };
