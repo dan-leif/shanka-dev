@@ -451,7 +451,51 @@ window.VOCAB = {
   {en:"audience", trad:"觀眾", simp:"观众", py:"guānzhòng"},
   {en:"to stand", trad:"站", simp:"站", py:"zhàn"},
   {en:"it's a deal", trad:"一言為定", simp:"一言为定", py:"yì yán wéi dìng"}
-]
+],
+
+// ---- 2-3 (Asking for Directions) ----
+"Lesson 2-3": [
+  {en:"toward", trad:"往", simp:"往", py:"wǎng"},
+  {en:"everyone (used to address people)", trad:"各位", simp:"各位", py:"gèwèi"},
+  {en:"traveler; passenger", trad:"旅客", simp:"旅客", py:"lǚkè"},
+  {en:"to land; descend", trad:"降落", simp:"降落", py:"jiàngluò"},
+  {en:"seat belt; safety belt", trad:"安全帶", simp:"安全带", py:"ānquándài"},
+  {en:"to tie; fasten; buckle up", trad:"繫上", simp:"系上", py:"jìshàng"},
+  {en:"computer", trad:"計算機", simp:"计算机", py:"jìsuànjī"},
+  {en:"electronics", trad:"電子", simp:"电子", py:"diànzǐ"},
+  {en:"product", trad:"用品", simp:"用品", py:"yòngpǐn"},
+  {en:"to take (transportation)", trad:"搭乘", simp:"搭乘", py:"dāchéng"},
+  {en:"aviation; airline", trad:"航空", simp:"航空", py:"hángkōng"},
+  {en:"to rent", trad:"出租", simp:"出租", py:"chūzū"},
+  {en:"hotel; hostel", trad:"旅館", simp:"旅馆", py:"lǚguǎn"},
+  {en:"passerby", trad:"路人", simp:"路人", py:"lùrén"},
+  {en:"(measure word for buildings)", trad:"棟", simp:"栋", py:"dòng"},
+  {en:"intersection", trad:"交叉口", simp:"交叉口", py:"jiāochākǒu"},
+  {en:"left side", trad:"左", simp:"左", py:"zuǒ"},
+  {en:"to turn", trad:"拐", simp:"拐", py:"guǎi"},
+  {en:"straight", trad:"一直", simp:"一直", py:"yìzhí"},
+  {en:"block; intersection; fork in road", trad:"路口", simp:"路口", py:"lùkǒu"},
+  {en:"driver", trad:"司機", simp:"司机", py:"sījī"},
+  {en:"holiday", trad:"假日", simp:"假日", py:"jiàrì"},
+  {en:"kilometer", trad:"公里", simp:"公里", py:"gōnglǐ"},
+  {en:"trunk (of a car)", trad:"後車箱", simp:"后车箱", py:"hòuchēxiāng"},
+  {en:"to develop; development", trad:"發展", simp:"发展", py:"fāzhǎn"},
+  {en:"to change; change", trad:"變化", simp:"变化", py:"biànhuà"},
+  {en:"originally", trad:"本來", simp:"本来", py:"běnlái"},
+  {en:"farmland; cropland", trad:"農田", simp:"农田", py:"nóngtián"},
+  {en:"to become", trad:"變成", simp:"变成", py:"biànchéng"},
+  {en:"road; avenue; street", trad:"馬路", simp:"马路", py:"mǎlù"},
+  {en:"(used to indicate realization)", trad:"喔", simp:"喔", py:"ō"},
+  {en:"meter (measurement of length)", trad:"公尺", simp:"公尺", py:"gōngchǐ"},
+  {en:"traffic light", trad:"紅綠燈", simp:"红绿灯", py:"hónglǜdēng"},
+  {en:"toward", trad:"向", simp:"向", py:"xiàng"},
+  {en:"right side", trad:"右", simp:"右", py:"yòu"},
+  {en:"to turn", trad:"轉", simp:"转", py:"zhuǎn"},
+  {en:"snack bar", trad:"小吃店", simp:"小吃店", py:"xiǎochīdiàn"},
+  {en:"turn; detour", trad:"彎兒", simp:"弯儿", py:"wār"},
+  {en:"cab fare", trad:"車費", simp:"车费", py:"chēfèi"},
+  {en:"to seek; to look for; to give (change)", trad:"找", simp:"找", py:"zhǎo"}
+],
   }
 };
 
