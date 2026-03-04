@@ -496,6 +496,45 @@ window.VOCAB = {
   {en:"cab fare", trad:"車費", simp:"车费", py:"chēfèi"},
   {en:"to seek; to look for; to give (change)", trad:"找", simp:"找", py:"zhǎo"}
 ],
+
+// ---- 2-4 (Hospitality) ----
+"Lesson 2-4": [
+  {en:"teacher’s wife (honorific)", trad:"師母", simp:"师母", py:"shīmǔ"},
+  {en:"some (measure word)", trad:"些", simp:"些", py:"xiē"},
+  {en:"vitamin", trad:"維生素", simp:"维生素", py:"wéishēngsù"},
+  {en:"forever", trad:"永遠", simp:"永远", py:"yǒngyuǎn"},
+  {en:"healthy", trad:"健康", simp:"健康", py:"jiànkāng"},
+  {en:"young", trad:"年輕", simp:"年轻", py:"niánqīng"},
+  {en:"(you) spent too much money; went to great expense", trad:"破費", simp:"破费", py:"pòfèi"},
+  {en:"no big deal", trad:"小意思", simp:"小意思", py:"xiǎoyìsi"},
+  {en:"seldom; rarely", trad:"難得", simp:"难得", py:"nándé"},
+  {en:"especially", trad:"特地", simp:"特地", py:"tèdì"},
+  {en:"best cooking; specialty dish", trad:"拿手菜", simp:"拿手菜", py:"náshǒucài"},
+  {en:"cool; cold", trad:"涼", simp:"凉", py:"liáng"},
+  {en:"energetic; high-spirited", trad:"精神", simp:"精神", py:"jīngshen"},
+  {en:"gray or white hair", trad:"白頭髮", simp:"白头发", py:"báitóufa"},
+  {en:"eye(s)", trad:"眼睛", simp:"眼睛", py:"yǎnjing"},
+  {en:"flower; blurred eyesight", trad:"花", simp:"花", py:"huā"},
+  {en:"to get used to", trad:"適應", simp:"适应", py:"shìyìng"},
+  {en:"time difference; jet lag", trad:"時差", simp:"时差", py:"shíchā"},
+  {en:"daytime", trad:"白天", simp:"白天", py:"báitiān"},
+  {en:"sleepy; drowsy", trad:"困", simp:"困", py:"kùn"},
+  {en:"unable to sleep", trad:"睡不著", simp:"睡不着", py:"shuìbuzháo"},
+  {en:"street", trad:"街道", simp:"街道", py:"jiēdào"},
+  {en:"to be used to", trad:"習慣", simp:"习惯", py:"xíguàn"},
+  {en:"to grow", trad:"長", simp:"长", py:"zhǎng"},
+  {en:"New Year cake; rice cake", trad:"年糕", simp:"年糕", py:"niángāo"},
+  {en:"taste", trad:"味道", simp:"味道", py:"wèidao"},
+  {en:"authentic; genuine", trad:"地道", simp:"地道", py:"dìdao"},
+  {en:"aroma; fragrant", trad:"香", simp:"香", py:"xiāng"},
+  {en:"all included; altogether", trad:"俱全", simp:"俱全", py:"jùquán"},
+  {en:"full", trad:"飽", simp:"饱", py:"bǎo"},
+  {en:"just; simply", trad:"只是", simp:"只是", py:"zhǐshì"},
+  {en:"homemade meal", trad:"家常便飯", simp:"家常便饭", py:"jiāchángbiànfàn"},
+  {en:"to get together", trad:"相聚", simp:"相聚", py:"xiāngjù"},
+  {en:"to toast; cheers", trad:"乾杯", simp:"干杯", py:"gānbēi"},
+  {en:"Isn’t it pleasant to have friends coming from afar?", trad:"有朋自遠方來，不亦樂乎？", simp:"有朋自远方来，不亦乐乎？", py:"yǒu péng zì yuǎnfāng lái, bù yì lè hū"}
+],
   }
 };
 
