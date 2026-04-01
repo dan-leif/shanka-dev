@@ -535,6 +535,33 @@ window.VOCAB = {
   {en:"to toast; cheers", trad:"乾杯", simp:"干杯", py:"gānbēi"},
   {en:"Isn’t it pleasant to have friends coming from afar?", trad:"有朋自遠方來，不亦樂乎？", simp:"有朋自远方来，不亦乐乎？", py:"yǒu péng zì yuǎnfāng lái, bù yì lè hū"}
 ],
+
+// ---- 2-5 (My Trip to China – Review) ----
+"Lesson 2-5": [
+  {en:"cloudy", trad:"陰", simp:"阴", py:"yīn"},
+  {en:"finally, at last", trad:"終於", simp:"终于", py:"zhōngyú"},
+  {en:"originally, at first, initially", trad:"本來", simp:"本来", py:"běnlái"},
+  {en:"flying", trad:"飛行", simp:"飞行", py:"fēixíng"},
+  {en:"change planes, transfer", trad:"轉機", simp:"转机", py:"zhuǎnjī"},
+  {en:"delay; to delay", trad:"誤點", simp:"误点", py:"wùdiǎn"},
+  {en:"to catch, catch up with", trad:"趕上", simp:"赶上", py:"gǎnshàng"},
+  {en:"flight", trad:"班機", simp:"班机", py:"bānjī"},
+  {en:"warm-hearted, enthusiastic", trad:"熱情", simp:"热情", py:"rèqíng"},
+  {en:"hospitable", trad:"好客", simp:"好客", py:"hàokè"},
+  {en:"with relish, with keen pleasure", trad:"津津有味", simp:"津津有味", py:"jīnjīnyǒuwèi"},
+  {en:"be exposed to many great new things", trad:"大開眼界", simp:"大开眼界", py:"dàkāiyǎnjiè"},
+  {en:"group", trad:"團", simp:"团", py:"tuán"},
+  {en:"direction", trad:"方向", simp:"方向", py:"fāngxiàng"},
+  {en:"to make, cause, induce", trad:"鬧", simp:"闹", py:"nào"},
+  {en:"joke", trad:"笑話", simp:"笑话", py:"xiàohuà"},
+  {en:"prosperous", trad:"繁榮", simp:"繁荣", py:"fánróng"},
+  {en:"high-rise building", trad:"大廈", simp:"大厦", py:"dàshà"},
+  {en:"although", trad:"雖然", simp:"虽然", py:"suīrán"},
+  {en:"other people", trad:"別人", simp:"别人", py:"biérén"},
+  {en:"snack", trad:"小吃", simp:"小吃", py:"xiǎochī"},
+  {en:"very, quite", trad:"挺", simp:"挺", py:"tǐng"},
+  {en:"worthwhile", trad:"值得", simp:"值得", py:"zhídé"}
+]
   }
 };
 
