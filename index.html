@@ -56,8 +56,24 @@
       border: 1px solid #303645;
       `;
     document.body.appendChild(badge);
+
+    // Add ? help button above the version badge
+    const helpBtn = document.createElement('button');
+    helpBtn.id = 'helpBtn';
+    helpBtn.textContent = '?';
+    // Match the rendered width of the version badge by using same padding/font-size
+    helpBtn.style.width = badge.offsetWidth ? badge.offsetWidth + 'px' : 'auto';
+    helpBtn.addEventListener('click', function() {
+      document.getElementById('helpOverlay').classList.add('open');
+    });
+    document.body.appendChild(helpBtn);
+    // Once badge renders, sync width
+    requestAnimationFrame(function() {
+      helpBtn.style.width = badge.offsetWidth + 'px';
+      helpBtn.style.height = badge.offsetWidth + 'px';
+    });
   }
-  
+
   // Run when DOM is ready
   if (document.readyState === 'loading') {
     document.addEventListener('DOMContentLoaded', () => {
@@ -184,6 +200,27 @@
   .rating-btn.easy:hover{background:#42a5f520}
   .rating-btn:disabled{opacity:0.4;filter:grayscale(1);cursor:not-allowed;pointer-events:none}
   .rating-btn:disabled:hover{transform:none;background:var(--btn)}
+
+  /* Help button */
+  #helpBtn{position:fixed;bottom:42px;left:18px;z-index:9999;background:#111318;color:#94a3b8;border:1px solid #303645;border-radius:3px;font-size:11px;font-weight:bold;font-family:system-ui,sans-serif;cursor:pointer;display:grid;place-items:center;padding:0;line-height:1}
+
+  /* Help overlay */
+  #helpOverlay{position:fixed;inset:0;z-index:10000;background:rgba(0,0,0,0.85);display:none;align-items:flex-start;justify-content:center;overflow-y:auto;padding:20px}
+  #helpOverlay.open{display:flex}
+  #helpPanel{background:var(--panel);border:1px solid var(--btn-border);border-radius:var(--radius);max-width:640px;width:100%;padding:24px 24px 32px;position:relative;margin:auto}
+  #helpClose{position:sticky;top:0;float:right;background:var(--btn);border:1px solid var(--btn-border);color:var(--text);border-radius:8px;padding:6px 12px;font-size:14px;cursor:pointer;margin-bottom:12px}
+  #helpClose:hover{background:var(--btn-hover)}
+  #helpPanel h1{font-size:20px;margin:0 0 4px}
+  #helpPanel h2{font-size:15px;margin:20px 0 6px;color:var(--accent)}
+  #helpPanel p{font-size:14px;line-height:1.6;margin:0 0 8px;color:#cbd5e1}
+  #helpPanel ul{font-size:14px;line-height:1.6;margin:0 0 8px;padding-left:18px;color:#cbd5e1}
+  #helpPanel li{margin-bottom:4px}
+  #helpPanel table{width:100%;border-collapse:collapse;font-size:13px;margin-bottom:8px}
+  #helpPanel th{text-align:left;color:var(--muted);font-weight:600;padding:4px 8px;border-bottom:1px solid var(--divider)}
+  #helpPanel td{padding:6px 8px;border-bottom:1px solid var(--divider);color:#cbd5e1}
+  #helpPanel a{color:var(--accent)}
+  #helpPanel strong{color:var(--text)}
+  #helpPanel hr{border:none;border-top:1px solid var(--divider);margin:16px 0}
 </style>
 </head>
 <body>
@@ -261,6 +298,94 @@
       <button data-rating="2" class="rating-btn good">Good<span class="interval">3d</span></button>
       <button data-rating="3" class="rating-btn easy">Easy<span class="interval">7d</span></button>
     </div>
+  </div>
+</div>
+
+<div id="helpOverlay">
+  <div id="helpPanel">
+    <button id="helpClose">✕ Close</button>
+    <h1>閃卡 — User Guide</h1>
+    <p>A flashcard app for studying Chinese vocabulary, with stroke practice, character lookup, and spaced repetition.</p>
+    <hr>
+    <h2>Choosing what to study</h2>
+    <p>The <strong>lesson selector</strong> (top-left dropdown) lets you pick your deck:</p>
+    <ul>
+      <li><strong>Individual lessons</strong> — vocabulary from a single lesson</li>
+      <li><strong>All</strong> — every card across all lessons</li>
+      <li><strong>Review (★)</strong> — only cards you've starred</li>
+      <li><strong>Due for Review</strong> — cards whose spaced repetition interval has elapsed</li>
+    </ul>
+    <p>The number in parentheses shows how many cards are in each deck.</p>
+    <hr>
+    <h2>Study modes</h2>
+    <p>The <strong>mode selector</strong> (top-right dropdown) controls what appears on the front of each card:</p>
+    <table>
+      <tr><th>Option</th><th>Tests you on</th></tr>
+      <tr><td>英</td><td>English</td></tr>
+      <tr><td>正</td><td>Traditional Chinese</td></tr>
+      <tr><td>简</td><td>Simplified Chinese</td></tr>
+      <tr><td>拼</td><td>Pinyin</td></tr>
+    </table>
+    <hr>
+    <h2>Flashcard basics</h2>
+    <ul>
+      <li><strong>Tap the card</strong> to flip it and reveal the answer</li>
+      <li><strong>Swipe left</strong> to go to the next card</li>
+      <li><strong>Swipe right</strong> to go to the previous card</li>
+    </ul>
+    <p>The answer side shows Traditional Chinese, Simplified Chinese (if different), Pinyin, and the English meaning.</p>
+    <hr>
+    <h2>Drawing pad</h2>
+    <p>The bottom half of the screen is a <strong>drawing pad</strong> for stroke practice. Draw with your finger or stylus — strokes are white on a dark background.</p>
+    <ul>
+      <li>The pad clears automatically when you move to a new card</li>
+      <li>Tap <strong>✕</strong> (top-left of the pad) to clear it manually</li>
+    </ul>
+    <hr>
+    <h2>Rating cards</h2>
+    <p>Four rating buttons appear after flipping a card. These drive the <strong>spaced repetition</strong> system — cards you find harder come back sooner:</p>
+    <table>
+      <tr><th>Button</th><th>Meaning</th><th>Next review</th></tr>
+      <tr><td><strong>Again</strong></td><td>Completely forgot it</td><td>Right now</td></tr>
+      <tr><td><strong>Hard</strong></td><td>Got it, but with effort</td><td>~1 day</td></tr>
+      <tr><td><strong>Good</strong></td><td>Recalled it comfortably</td><td>~3 days</td></tr>
+      <tr><td><strong>Easy</strong></td><td>Knew it instantly</td><td>~7+ days</td></tr>
+    </table>
+    <p>Cards you've rated before appear in the <strong>Due for Review</strong> deck when their interval is up.</p>
+    <hr>
+    <h2>Starring cards ★</h2>
+    <p>Tap the <strong>★ button</strong> to star the current card. Starred cards are added to the <strong>Review (★)</strong> deck. Tap again to unstar.</p>
+    <hr>
+    <h2>Shadow mode ◐</h2>
+    <p>Tap the <strong>◐ button</strong> to enable shadow mode. The character is displayed as a <strong>tracing guide</strong> on the drawing pad.</p>
+    <ul>
+      <li>Tap an individual character on the card to select it and display it on the drawing pad</li>
+      <li>When a character is selected, the <strong>⌕ lookup button</strong> appears</li>
+      <li>Shadow mode temporarily disables flipping and rating cards</li>
+    </ul>
+    <hr>
+    <h2>Character lookup ⌕</h2>
+    <p>In shadow mode, after tapping a character, tap <strong>⌕</strong> to open a lookup menu:</p>
+    <ul>
+      <li><strong>Wiki</strong> — Stroke order, radicals, and character evolution</li>
+      <li><strong>Mnemonics</strong> — Creative mnemonic devices for remembering each character</li>
+      <li><strong>HanziHero</strong> — Another mnemonic system</li>
+    </ul>
+    <hr>
+    <h2>Progress dots</h2>
+    <p>The row of dots at the bottom shows your progress through the current deck:</p>
+    <ul>
+      <li><strong>White</strong> — current card</li>
+      <li><strong>Red</strong> — rated Again</li>
+      <li><strong>Orange</strong> — rated Hard</li>
+      <li><strong>Green</strong> — rated Good</li>
+      <li><strong>Blue</strong> — rated Easy</li>
+      <li><strong>Dark</strong> — not yet rated</li>
+    </ul>
+    <hr>
+    <h2>Fullscreen &amp; install</h2>
+    <p>Tap <strong>⛶</strong> in the toolbar to toggle fullscreen mode.</p>
+    <p>On mobile, use your browser's "Add to Home Screen" option to install 閃卡 as a PWA for full-screen, offline use.</p>
   </div>
 </div>
 
@@ -1214,6 +1339,14 @@
   pad.addEventListener('pointerup',()=>{ drawing=false; });
   pad.addEventListener('pointercancel',()=>{ drawing=false; });
   clearBtn.addEventListener('click', clearPad);
+
+  // Help overlay
+  document.getElementById('helpClose').addEventListener('click', function() {
+    document.getElementById('helpOverlay').classList.remove('open');
+  });
+  document.getElementById('helpOverlay').addEventListener('click', function(e) {
+    if (e.target === this) this.classList.remove('open');
+  });
 
   window.addEventListener('resize', resizePad, {passive:true});
   window.addEventListener('resize', () => {
