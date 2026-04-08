@@ -86,11 +86,9 @@ Tap the **◐ button** to enable shadow mode. The character is displayed as a **
 
 In shadow mode, after tapping a character to select it, tap the **⌕** button to open a lookup menu with three options:
 
-- **Wiki** — Provides stroke order and breaks down the origin of each character, including radicals and ancient versions
-- **Mnemonics** — Creative mnemonic devices for remembering each character
-- **HanziHero** — Even more creative mnenomic system
-
-Each opens in a new browser tab.
+- **Wiki** — Stroke order, radicals, and character evolution
+- **Mnemonics** — Creative mnemonic devices
+- **HanziHero** — Another creative mnenomic system
 
 ---
 
