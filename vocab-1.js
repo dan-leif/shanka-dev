@@ -561,7 +561,49 @@ window.VOCAB = {
   {en:"snack", trad:"小吃", simp:"小吃", py:"xiǎochī"},
   {en:"very, quite", trad:"挺", simp:"挺", py:"tǐng"},
   {en:"worthwhile", trad:"值得", simp:"值得", py:"zhídé"}
-]
+],
+
+    // ---- 2-6 (Opening a Bank Account) ----
+    "Lesson 2-6": [
+      {en:"bank", trad:"銀行", simp:"银行", py:"yínháng"},
+      {en:"to open", trad:"開", simp:"开", py:"kāi"},
+      {en:"account", trad:"帳戶", simp:"账户", py:"zhànghù"},
+      {en:"to deposit", trad:"存", simp:"存", py:"cún"},
+      {en:"money", trad:"款", simp:"款", py:"kuǎn"},
+      {en:"to withdraw", trad:"取", simp:"取", py:"qǔ"},
+      {en:"convenient", trad:"方便", simp:"方便", py:"fāngbiàn"},
+      {en:"interest rate", trad:"利率", simp:"利率", py:"lìlǜ"},
+      {en:"high", trad:"高", simp:"高", py:"gāo"},
+      {en:"to save (money); savings", trad:"儲蓄", simp:"储蓄", py:"chǔxù"},
+      {en:"... percent (%)", trad:"百分之...", simp:"百分之...", py:"bǎifēnzhī..."},
+      {en:"interest", trad:"利息", simp:"利息", py:"lìxi"},
+      {en:"check", trad:"支票", simp:"支票", py:"zhīpiào"},
+      {en:"staff, employee", trad:"職員", simp:"职员", py:"zhíyuán"},
+      {en:"low", trad:"低", simp:"低", py:"dī"},
+      {en:"kind", trad:"種", simp:"种", py:"zhǒng"},
+      {en:"similar, about the same", trad:"差不多", simp:"差不多", py:"chābuduō"},
+      {en:"enough", trad:"夠", simp:"够", py:"gòu"},
+      {en:"form", trad:"單子", simp:"单子", py:"dānzi"},
+      {en:"to fill in/up", trad:"填", simp:"填", py:"tián"},
+      {en:"thousand", trad:"千", simp:"千", py:"qiān"},
+      {en:"dollar", trad:"元", simp:"元", py:"yuán"},
+      {en:"to mail", trad:"寄", simp:"寄", py:"jì"},
+      {en:"(check) book", trad:"簿", simp:"簿", py:"bù"},
+      {en:"to take, fetch; to use", trad:"拿", simp:"拿", py:"ná"},
+      {en:"ATM card", trad:"取款卡", simp:"取款卡", py:"qǔkuǎnkā"},
+      {en:"automatic", trad:"自動", simp:"自动", py:"zìdòng"},
+      {en:"banking machine, ATM", trad:"取款機", simp:"取款机", py:"qǔkuǎnjī"},
+      {en:"cash", trad:"現金", simp:"现金", py:"xiànjīn"},
+      {en:"to apply; application", trad:"申請", simp:"申请", py:"shēnqǐng"},
+      {en:"credit card", trad:"信用卡", simp:"信用卡", py:"xìnyòngkā"},
+      {en:"of course", trad:"當然", simp:"当然", py:"dāngrán"},
+      {en:"form", trad:"表", simp:"表", py:"biǎo"},
+      {en:"to change", trad:"換", simp:"换", py:"huàn"},
+      {en:"exchange rate", trad:"匯率", simp:"汇率", py:"huìlǜ"},
+      {en:"to exchange; exchange", trad:"兌換", simp:"兑换", py:"duìhuàn"},
+      {en:"foreign currency", trad:"外幣", simp:"外币", py:"wàibì"},
+      {en:"counter", trad:"櫃台", simp:"柜台", py:"guìtái"}
+    ]
   }
 };
 
